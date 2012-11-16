@@ -103,9 +103,9 @@ def generate(env):
     env['BUILDERS']['AsciiDoc'] = asciidoc_builder(env)
     env['BUILDERS']['A2X']      = a2x_builder(env)
 
-    # set defaults
+    # set defaults; should match the asciidoc/a2x defaults
     env['ASCIIDOC']        = 'asciidoc'
-    env['ASCIIDOCBACKEND'] = 'html5'
+    env['ASCIIDOCBACKEND'] = 'html'
     env['A2X']             = 'a2x'
     env['A2XFORMAT']       = 'pdf'
 
