@@ -52,7 +52,6 @@ def asciidoc_builder(env):
         suffix = gen_suffix,
         single_source = True,
         source_scanner = ad_scanner,
-        # emitter = asciidoc_emitter,
     )
 
     return asciidoc
