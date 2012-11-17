@@ -3,6 +3,9 @@ import SCons.Scanner
 import os
 
 # TODO: write tests
+# TODO: in order to get the dependencies for "chunked", "epub" and "htmlhelp"
+# formats right, refactor so that a pseudo-builder wraps the actual builder and
+# call Depends() on the appropriate directories
 
 def asciidoc_scanner(node, env, path):
     """Scans AsciiDoc files for include::[] directives"""
@@ -40,7 +43,6 @@ def a2x_emitter(target, source, env):
     if a2x_format != 'docbook' and keep_temp:
         file_list.append(fbasename + '.xml')
 
-    # TODO: write a proper emitter for "chunked", "epub" and "htmlhelp" formats
     # TODO: the following formats do not produce final output, but do not raise
     # any errors: "dvi", "ps"
     # NOTE: the following formats do not add additional targets: pdf, ps, tex
