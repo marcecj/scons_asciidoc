@@ -23,6 +23,33 @@ def _ad_scanner(node, env, path):
 
 __ad_src_scanner = SCons.Scanner.Scanner(_ad_scanner, recursive=True)
 
+# TODO: finish this emitter
+#
+# NOTE: AsciiDoc does not seem to output extra targets.  In the case where JS
+# and CSS is linked to the HTML file, it must be manually copied to the
+# appropriate location.  In this case, the files would be part of the source
+# code repository anyway, and the dependencies of the target file on them should
+# not matter.  Furthermore, they are irrelevant to the produced HTML, and even
+# when they are embedded, they reside in a central asciidoc configuration
+# directory in $HOME, /etc/ or /usr/local/etc/ (see
+# http://www.methods.co.nz/asciidoc/userguide.html#X27).  I believe that is
+# *outside* the scope of this AsciiDoc tool.
+def _ad_emitter(target, source, env):
+    """Target emitter for the AsciiDoc builder."""
+
+    # Actual potential candidates to be emitted here:
+    # - image directories when the data-uri option is set:
+    #     - iconsdir
+    #     - imagesdir
+    # - AsciiDoc configuration files in the source directory:
+    #     - asciidoc.conf
+    #     - <backend>.conf and <backend>-<doctype>.conf
+    #     - <docfile>.conf and <docfile>-<backend>.conf
+    #     -> add "ASCIIDOCDOCTYPE" env var and add the appropriate conf file to the
+    #     sources if it exists
+
+    return (target, source)
+
 def _a2x_emitter(target, source, env):
     """Target emitter for the A2X builder."""
 
@@ -131,6 +158,7 @@ __asciidoc_bld = SCons.Builder.Builder(
     suffix = _gen_ad_suffix,
     single_source = True,
     source_scanner = __ad_src_scanner,
+    emitter = _ad_emitter,
 )
 
 __a2x_bld = SCons.Builder.Builder(
@@ -139,7 +167,7 @@ __a2x_bld = SCons.Builder.Builder(
     suffix = _gen_a2x_suffix,
     single_source = True,
     source_scanner = __ad_src_scanner,
-    emitter = _a2x_emitter,
+    emitter = [_a2x_emitter, _ad_emitter],
 )
 
 def _partition_targets(target, source):
