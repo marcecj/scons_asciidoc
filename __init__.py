@@ -1,11 +1,9 @@
 import SCons.Builder
 import SCons.Scanner
+import SCons.Util
 import os
 
 # TODO: write tests
-# TODO: in order to get the dependencies for "chunked", "epub" and "htmlhelp"
-# formats right, refactor so that a pseudo-builder wraps the actual builder and
-# call Depends() on the appropriate directories
 
 def _ad_scanner(node, env, path):
     """Scans AsciiDoc files for include::[] directives"""
@@ -49,20 +47,16 @@ def _a2x_emitter(target, source, env):
     # any errors: "dvi", "ps"
     # NOTE: the following formats do not add additional targets: pdf, ps, tex
     # (I haven't verified ps, though)
+    # NOTE: the following formats are handled in the pseudo-builder: chunked,
+    # epub, and the directory output of htmlhelp
     if a2x_format == 'dvi':
 
         pass
-
-    elif a2x_format == 'epub' and keep_temp:
-
-        # FIXME: xsltproc fails on my system
-        file_list.append(fbasename + '.epub.d')
 
     elif a2x_format == 'htmlhelp' and keep_temp:
 
         # FIXME: fails on my system with a UnicodeDecodeError
         file_list.append(fbasename + '.hhc')
-        file_list.append(fbasename + '.htmlhelp')
 
     elif a2x_format == 'manpage':
 
@@ -98,7 +92,7 @@ def _gen_ad_suffix(env, sources):
         return '.html'
 
 # needed in case you want to do something with the target
-# TODO: figure out chunked, docbook, htmlhelp and manpage
+# TODO: try out docbook, htmlhelp and manpage
 def _gen_a2x_suffix(env, sources):
     """Generate the a2x target suffix depending on the chosen format."""
 
@@ -127,6 +121,7 @@ def _gen_a2x_suffix(env, sources):
     elif a2x_format == 'xhtml':
         return '.html'
 
+# TODO: add the -d option
 _ad_action = '${ASCIIDOC} \
         -b ${ASCIIDOCBACKEND} ${ASCIIDOCFLAGS} \
         -o ${TARGET} ${SOURCE}'
@@ -139,6 +134,7 @@ __asciidoc_bld = SCons.Builder.Builder(
 )
 
 __a2x_bld = SCons.Builder.Builder(
+    # TODO: add the -d option
     action = '${A2X} -f ${A2XFORMAT} ${A2XFLAGS} ${SOURCE}',
     suffix = _gen_a2x_suffix,
     single_source = True,
@@ -146,11 +142,108 @@ __a2x_bld = SCons.Builder.Builder(
     emitter = _a2x_emitter,
 )
 
+def _partition_targets(target, source):
+    """Partition target lists into one list per source."""
+
+    t_basename = [str(t).rpartition('.')[0] for t in target]
+
+    # find the indices corresponding to the next source
+    idx = [t_basename.index(str(s).rpartition('.')[0]) for s in source]
+    idx.append(len(target))
+
+    # now split the target list
+    new_list = [target[s:e] for s,e in zip(idx[:-1], idx[1:])]
+    new_list = SCons.Util.NodeList(new_list)
+
+    return new_list
+
+def asciidoc_builder(env, target, source, *args, **kwargs):
+
+    r = __asciidoc_bld(env, target, source, **kwargs)
+
+    return r
+
+def a2x_builder(env, target, source, *args, **kwargs):
+
+    a2x_format = env['A2XFORMAT']
+    a2x_flags  = env['A2XFLAGS']
+
+    r = __a2x_bld(env, target, source, **kwargs)
+
+    # create a list of target lists, one per source
+    partitioned_r = _partition_targets(r, source)
+
+    # determine whether artifacts are to be kept or not
+    a2x_flags = (a2x_flags if type(a2x_flags) is list else a2x_flags.split())
+    keep_temp = '-k' in a2x_flags or '--keep-artifacts' in a2x_flags
+
+    # make sure to clean up intermediary files when the target is cleaned
+    for entry in partitioned_r:
+
+        # docbook format needs no special handling
+        if a2x_format == 'docbook':
+            break
+
+        # the first entry is always the actual target; we know the emitter
+        # appends the xml intermediary, so it is always the second entry
+        t        = entry[0]
+        if keep_temp:
+            xml_temp = entry[1]
+
+        fbasename = t.path.rpartition('.')[0]
+
+        # Add t to the cleanup file list for when it's a directory
+        cleanup_files = [t]
+
+        if a2x_format == 'chunked':
+
+            html_files = env.Glob(os.sep.join([t.path, '*']))
+
+            cleanup_files.extend(html_files)
+
+            env.Clean(t, cleanup_files)
+
+            # make sure the xml intermediary does not depend on the html files
+            if keep_temp:
+                env.Ignore(xml_temp, html_files)
+
+            # these files are the actual builder output, so add them to results
+            r.extend(html_files)
+
+        elif a2x_format == 'epub' and keep_temp:
+
+            # FIXME: xsltproc fails here
+            epub_dir = fbasename + '.epub.d'
+            epub_files = env.Glob(os.sep.join([epub_dir, '*']))
+
+            cleanup_files.append(epub_dir)
+            cleanup_files.extend(epub_files)
+
+            env.Clean(t, cleanup_files)
+
+            # make sure the xml intermediary does not depend on the intermediate
+            # epub files
+            env.Ignore(xml_temp, epub_files)
+
+        elif a2x_format == 'htmlhelp' and keep_temp:
+
+            html_dir = fbasename + '.htmlhelp'
+            html_files = env.Glob(os.sep.join([html_dir, '*']))
+
+            cleanup_files.append(html_dir)
+            cleanup_files.extend(html_files)
+
+            env.Clean(t, cleanup_files)
+
+            # make sure the xml intermediary does not depend on the html files
+            env.Ignore(xml_temp, html_files)
+
+    return r
 
 def generate(env):
 
-    env['BUILDERS']['AsciiDoc'] = __asciidoc_bld
-    env['BUILDERS']['A2X']      = __a2x_bld
+    env['BUILDERS']['AsciiDoc'] = asciidoc_builder
+    env['BUILDERS']['A2X']      = a2x_builder
 
     # set defaults; should match the asciidoc/a2x defaults
     env['ASCIIDOC']        = 'asciidoc'
