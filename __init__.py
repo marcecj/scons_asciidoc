@@ -25,10 +25,12 @@ def a2x_emitter(target, source, env):
     # file to check
     fname     = os.path.basename(source[0].path)
     fbasename = fname.rpartition('.')[0]
-    fname_dir = os.path.dirname(source[0].path)
+    fpath     = os.path.dirname(source[0].path)
+
+    a2x_format = env['A2XFORMAT']
 
     file_list = []
-    if env['A2XFORMAT'] != 'docbook':
+    if a2x_format != 'docbook':
         file_list.append(fbasename + '.xml')
 
     # TODO: write a proper emitter for "chunked", "epub" and "htmlhelp" formats
@@ -36,40 +38,40 @@ def a2x_emitter(target, source, env):
     # any errors: "dvi", "ps"
     # NOTE: the following formats do not add additional targets: pdf, ps, tex
     # (I haven't verified ps, though)
-    if   env['A2XFORMAT'] == 'chunked':
+    if   a2x_format == 'chunked':
 
         file_list.append('index.chunked')
 
-    elif env['A2XFORMAT'] == 'dvi':
+    elif a2x_format == 'dvi':
 
         # TODO: this format produces nothing on my system
         pass
 
-    elif env['A2XFORMAT'] == 'epub':
+    elif a2x_format == 'epub':
 
-        # TODO: xsltproc fails on my system
+        # FIXME: xsltproc fails on my system
         file_list.append('index.epub.d')
 
-    elif env['A2XFORMAT'] == 'htmlhelp':
+    elif a2x_format == 'htmlhelp':
 
-        # TODO: fails on my system with a UnicodeDecodeError
-        file_list.extend([fbasename + '.hhc', fbasename + '.hhp'])
+        # FIXME: fails on my system with a UnicodeDecodeError
+        file_list.append(fbasename + '.hhc')
         file_list.append('index.htmlhelp')
 
-    elif env['A2XFORMAT'] == 'manpage':
+    elif a2x_format == 'manpage':
 
-        # TODO: find a way to test this
+        # FIXME: xsltproc fails here, too
         pass
 
-    elif env['A2XFORMAT'] == 'text':
+    elif a2x_format == 'text':
 
         file_list.append(fname + '.html')
 
-    elif env['A2XFORMAT'] == 'xhtml':
+    elif a2x_format == 'xhtml':
 
         file_list.append('docbook-xsl.css')
 
-    file_list = [os.sep.join([fname_dir, f]) for f in file_list]
+    file_list = [os.sep.join([fpath, f]) for f in file_list]
 
     target += file_list
 
@@ -111,27 +113,28 @@ def a2x_builder(env):
     # needed in case you want to do something with the target
     # TODO: figure out chunked, docbook, htmlhelp and manpage
     def gen_suffix(*kargs, **kwargs):
-        if   env['A2XFORMAT'] == 'chunked':
+        a2x_format = env['A2XFORMAT']
+        if   a2x_format == 'chunked':
             return '.chunked'
-        elif env['A2XFORMAT'] == 'docbook':
+        elif a2x_format == 'docbook':
             return '.xml' # TODO: is it really one file?
-        elif env['A2XFORMAT'] == 'dvi':
+        elif a2x_format == 'dvi':
             return '.dvi'
-        elif env['A2XFORMAT'] == 'epub':
+        elif a2x_format == 'epub':
             return '.epub'
-        elif env['A2XFORMAT'] == 'htmlhelp':
+        elif a2x_format == 'htmlhelp':
             return '.hhp'
-        elif env['A2XFORMAT'] == 'manpage':
+        elif a2x_format == 'manpage':
             return '.man'
-        elif env['A2XFORMAT'] == 'pdf':
+        elif a2x_format == 'pdf':
             return '.pdf'
-        elif env['A2XFORMAT'] == 'ps':
+        elif a2x_format == 'ps':
             return '.ps'
-        elif env['A2XFORMAT'] == 'tex':
+        elif a2x_format == 'tex':
             return '.tex'
-        elif env['A2XFORMAT'] == 'text':
+        elif a2x_format == 'text':
             return '.text'
-        elif env['A2XFORMAT'] == 'xhtml':
+        elif a2x_format == 'xhtml':
             return '.html'
 
     ad_scanner = SCons.Scanner.Scanner(asciidoc_scanner, recursive=True)
