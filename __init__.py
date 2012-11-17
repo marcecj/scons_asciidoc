@@ -67,7 +67,7 @@ def a2x_emitter(target, source, env):
 
     elif a2x_format == 'text':
 
-        file_list.append(fname + '.html')
+        file_list.append(os.path.basename(target[0].path) + '.html')
 
     elif a2x_format == 'xhtml':
 
