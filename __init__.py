@@ -70,7 +70,7 @@ def _a2x_emitter(target, source, env):
 
     elif a2x_format == 'manpage':
 
-        # FIXME: xsltproc fails here, too
+        # FIXME: xsltproc fails here
         pass
 
     elif a2x_format == 'text' and keep_temp:
@@ -83,7 +83,7 @@ def _a2x_emitter(target, source, env):
 
     file_list = [os.sep.join([fpath, f]) for f in file_list]
 
-    target += file_list
+    target.extend(file_list)
 
     return (target, source)
 
@@ -107,6 +107,7 @@ def _gen_a2x_suffix(env, sources):
     """Generate the a2x target suffix depending on the chosen format."""
 
     a2x_format = env['A2XFORMAT']
+
     if   a2x_format == 'chunked':
         return '.chunked'
     elif a2x_format == 'docbook':
@@ -129,7 +130,6 @@ def _gen_a2x_suffix(env, sources):
         return '.text'
     elif a2x_format == 'xhtml':
         return '.html'
-
 
 _ad_action = '${ASCIIDOC} \
         -b ${ASCIIDOCBACKEND} ${ASCIIDOCFLAGS} \
