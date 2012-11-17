@@ -49,11 +49,7 @@ def _a2x_emitter(target, source, env):
     # any errors: "dvi", "ps"
     # NOTE: the following formats do not add additional targets: pdf, ps, tex
     # (I haven't verified ps, though)
-    if   a2x_format == 'chunked':
-
-        file_list.append(fbasename + '.chunked')
-
-    elif a2x_format == 'dvi':
+    if a2x_format == 'dvi':
 
         pass
 
