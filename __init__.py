@@ -63,7 +63,7 @@ def a2x_builder(env):
     # TODO: figure out chunked, docbook, htmlhelp and manpage
     def gen_suffix(*kargs, **kwargs):
         if   env['A2XFORMAT'] == 'chunked':
-            return ''
+            return '.chunked'
         elif env['A2XFORMAT'] == 'docbook':
             return '.xml' # TODO: is it really one file?
         elif env['A2XFORMAT'] == 'dvi':
@@ -71,9 +71,9 @@ def a2x_builder(env):
         elif env['A2XFORMAT'] == 'epub':
             return '.epub'
         elif env['A2XFORMAT'] == 'htmlhelp':
-            return ''
+            return '.hhp'
         elif env['A2XFORMAT'] == 'manpage':
-            return ''
+            return '.man'
         elif env['A2XFORMAT'] == 'pdf':
             return '.pdf'
         elif env['A2XFORMAT'] == 'ps':
@@ -81,7 +81,7 @@ def a2x_builder(env):
         elif env['A2XFORMAT'] == 'tex':
             return '.tex'
         elif env['A2XFORMAT'] == 'text':
-            return '.txt'
+            return '.text'
         elif env['A2XFORMAT'] == 'xhtml':
             return '.html'
 
