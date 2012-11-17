@@ -31,8 +31,13 @@ def a2x_emitter(target, source, env):
 
     a2x_format = env['A2XFORMAT']
 
+    # determine whether artifacts are to be kept or not
+    a2x_flags = env['A2XFLAGS']
+    a2x_flags = (a2x_flags if type(a2x_flags) is list else a2x_flags.split())
+    keep_temp = '-k' in a2x_flags or '--keep-artifacts' in a2x_flags
+
     file_list = []
-    if a2x_format != 'docbook':
+    if a2x_format != 'docbook' and keep_temp:
         file_list.append(fbasename + '.xml')
 
     # TODO: write a proper emitter for "chunked", "epub" and "htmlhelp" formats
@@ -49,12 +54,12 @@ def a2x_emitter(target, source, env):
         # TODO: this format produces nothing on my system
         pass
 
-    elif a2x_format == 'epub':
+    elif a2x_format == 'epub' and keep_temp:
 
         # FIXME: xsltproc fails on my system
         file_list.append('index.epub.d')
 
-    elif a2x_format == 'htmlhelp':
+    elif a2x_format == 'htmlhelp' and keep_temp:
 
         # FIXME: fails on my system with a UnicodeDecodeError
         file_list.append(fbasename + '.hhc')
@@ -65,7 +70,7 @@ def a2x_emitter(target, source, env):
         # FIXME: xsltproc fails here, too
         pass
 
-    elif a2x_format == 'text':
+    elif a2x_format == 'text' and keep_temp:
 
         file_list.append(os.path.basename(target[0].path) + '.html')
 
