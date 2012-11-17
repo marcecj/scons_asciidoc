@@ -82,6 +82,7 @@ def a2x_emitter(target, source, env):
 def asciidoc_builder(env):
     """Returns an AsciiDoc builder"""
 
+    # generate the target suffix depending on the chosen backend
     def gen_suffix(*kargs, **kwargs):
         html_like = ('xhtml11', 'html', 'html4', 'html5', 'slidy', 'wordpress')
 
@@ -112,7 +113,8 @@ def asciidoc_builder(env):
 def a2x_builder(env):
     """Returns an a2x builder"""
 
-    # needed in case you want to do something with the target
+    # generate the target suffix depending on the chosen format; needed in case
+    # you want to do something with the target
     # TODO: figure out chunked, docbook, htmlhelp and manpage
     def gen_suffix(*kargs, **kwargs):
         a2x_format = env['A2XFORMAT']
