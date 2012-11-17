@@ -2,6 +2,8 @@ import SCons.Builder
 import SCons.Scanner
 import os
 
+# TODO: write tests
+
 def asciidoc_scanner(node, env, path):
     """Scans AsciiDoc files for include::[] directives"""
 
