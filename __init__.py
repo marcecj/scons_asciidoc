@@ -1,10 +1,10 @@
 import SCons.Builder
 import SCons.Scanner
+import os
 
 def asciidoc_scanner(node, env, path):
     """Scans AsciiDoc files for include::[] directives"""
 
-    import os
     import re
 
     fname = str(node)
@@ -18,17 +18,66 @@ def asciidoc_scanner(node, env, path):
 
     return res
 
-# TODO: finish the emitter; it is mostly (only?) needed for temporary files left
-# over when a2x fails (e.g., when the xmllint fails) so that SCons can clean
-# them up
-def asciidoc_emitter(target, source, env):
+def a2x_emitter(target, source, env):
+    """Target emitter for the A2X builder."""
 
-    pass
+    # the a2x builder is single-source only, so we know there is only one source
+    # file to check
+    fname     = os.path.basename(source[0].path)
+    fbasename = fname.rpartition('.')[0]
+    fname_dir = os.path.dirname(source[0].path)
+
+    file_list = []
+    if env['A2XFORMAT'] != 'docbook':
+        file_list.append(fbasename + '.xml')
+
+    # TODO: write a proper emitter for "chunked", "epub" and "htmlhelp" formats
+    # TODO: the following formats do not produce final output, but do not raise
+    # any errors: "dvi", "ps"
+    # NOTE: the following formats do not add additional targets: pdf, ps, tex
+    # (I haven't verified ps, though)
+    if   env['A2XFORMAT'] == 'chunked':
+
+        file_list.append('index.chunked')
+
+    elif env['A2XFORMAT'] == 'dvi':
+
+        # TODO: this format produces nothing on my system
+        pass
+
+    elif env['A2XFORMAT'] == 'epub':
+
+        # TODO: xsltproc fails on my system
+        file_list.append('index.epub.d')
+
+    elif env['A2XFORMAT'] == 'htmlhelp':
+
+        # TODO: fails on my system with a UnicodeDecodeError
+        file_list.extend([fbasename + '.hhc', fbasename + '.hhp'])
+        file_list.append('index.htmlhelp')
+
+    elif env['A2XFORMAT'] == 'manpage':
+
+        # TODO: find a way to test this
+        pass
+
+    elif env['A2XFORMAT'] == 'text':
+
+        file_list.append(fname + '.html')
+
+    elif env['A2XFORMAT'] == 'xhtml':
+
+        file_list.append('docbook-xsl.css')
+
+    file_list = [os.sep.join([fname_dir, f]) for f in file_list]
+
+    target += file_list
+
+    return (target, source)
 
 def asciidoc_builder(env):
     """Returns an AsciiDoc builder"""
 
-    # TODO: experiment with docbook, as I have no experience with it
     def gen_suffix(*kargs, **kwargs):
         html_like = ('xhtml11', 'html', 'html4', 'html5', 'slidy', 'wordpress')
 
@@ -92,7 +141,7 @@ def a2x_builder(env):
         suffix = gen_suffix,
         single_source = True,
         source_scanner = ad_scanner,
-        # emitter = asciidoc_emitter,
+        emitter = a2x_emitter,
     )
 
     return a2x
