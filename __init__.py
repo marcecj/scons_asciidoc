@@ -7,7 +7,7 @@ import os
 # formats right, refactor so that a pseudo-builder wraps the actual builder and
 # call Depends() on the appropriate directories
 
-def asciidoc_scanner(node, env, path):
+def _ad_scanner(node, env, path):
     """Scans AsciiDoc files for include::[] directives"""
 
     import re
@@ -23,7 +23,9 @@ def asciidoc_scanner(node, env, path):
 
     return res
 
-def a2x_emitter(target, source, env):
+__ad_src_scanner = SCons.Scanner.Scanner(_ad_scanner, recursive=True)
+
+def _a2x_emitter(target, source, env):
     """Target emitter for the A2X builder."""
 
     # the a2x builder is single-source only, so we know there is only one source
@@ -86,84 +88,74 @@ def a2x_emitter(target, source, env):
 
     return (target, source)
 
-def asciidoc_builder(env):
-    """Returns an AsciiDoc builder"""
+def _gen_ad_suffix(env, sources):
+    """Generate the AsciiDoc target suffix depending on the chosen backend."""
 
-    # generate the target suffix depending on the chosen backend
-    def gen_suffix(*kargs, **kwargs):
-        html_like = ('xhtml11', 'html', 'html4', 'html5', 'slidy', 'wordpress')
+    html_like = ('xhtml11', 'html', 'html4', 'html5', 'slidy', 'wordpress')
 
-        if   env['ASCIIDOCBACKEND'] == 'pdf':
-            return '.pdf'
-        elif env['ASCIIDOCBACKEND'] == 'latex':
-            return '.tex'
-        elif env['ASCIIDOCBACKEND'].startswith('docbook'):
-            return '.xml'
-        elif env['ASCIIDOCBACKEND'] in html_like:
-            return '.html'
+    if   env['ASCIIDOCBACKEND'] == 'pdf':
+        return '.pdf'
+    elif env['ASCIIDOCBACKEND'] == 'latex':
+        return '.tex'
+    elif env['ASCIIDOCBACKEND'].startswith('docbook'):
+        return '.xml'
+    elif env['ASCIIDOCBACKEND'] in html_like:
+        return '.html'
 
-    ad_action = '${ASCIIDOC} \
-            -b ${ASCIIDOCBACKEND} ${ASCIIDOCFLAGS} \
-            -o ${TARGET} ${SOURCE}'
+# needed in case you want to do something with the target
+# TODO: figure out chunked, docbook, htmlhelp and manpage
+def _gen_a2x_suffix(env, sources):
+    """Generate the a2x target suffix depending on the chosen format."""
 
-    ad_scanner = SCons.Scanner.Scanner(asciidoc_scanner, recursive=True)
+    a2x_format = env['A2XFORMAT']
+    if   a2x_format == 'chunked':
+        return '.chunked'
+    elif a2x_format == 'docbook':
+        return '.xml' # TODO: is it really one file?
+    elif a2x_format == 'dvi':
+        return '.dvi'
+    elif a2x_format == 'epub':
+        return '.epub'
+    elif a2x_format == 'htmlhelp':
+        return '.hhp'
+    elif a2x_format == 'manpage':
+        return '.man'
+    elif a2x_format == 'pdf':
+        return '.pdf'
+    elif a2x_format == 'ps':
+        return '.ps'
+    elif a2x_format == 'tex':
+        return '.tex'
+    elif a2x_format == 'text':
+        return '.text'
+    elif a2x_format == 'xhtml':
+        return '.html'
 
-    asciidoc = SCons.Builder.Builder(
-        action = ad_action,
-        suffix = gen_suffix,
-        single_source = True,
-        source_scanner = ad_scanner,
-    )
 
-    return asciidoc
+_ad_action = '${ASCIIDOC} \
+        -b ${ASCIIDOCBACKEND} ${ASCIIDOCFLAGS} \
+        -o ${TARGET} ${SOURCE}'
 
-def a2x_builder(env):
-    """Returns an a2x builder"""
+__asciidoc_bld = SCons.Builder.Builder(
+    action = _ad_action,
+    suffix = _gen_ad_suffix,
+    single_source = True,
+    source_scanner = __ad_src_scanner,
+)
 
-    # generate the target suffix depending on the chosen format; needed in case
-    # you want to do something with the target
-    # TODO: figure out chunked, docbook, htmlhelp and manpage
-    def gen_suffix(*kargs, **kwargs):
-        a2x_format = env['A2XFORMAT']
-        if   a2x_format == 'chunked':
-            return '.chunked'
-        elif a2x_format == 'docbook':
-            return '.xml' # TODO: is it really one file?
-        elif a2x_format == 'dvi':
-            return '.dvi'
-        elif a2x_format == 'epub':
-            return '.epub'
-        elif a2x_format == 'htmlhelp':
-            return '.hhp'
-        elif a2x_format == 'manpage':
-            return '.man'
-        elif a2x_format == 'pdf':
-            return '.pdf'
-        elif a2x_format == 'ps':
-            return '.ps'
-        elif a2x_format == 'tex':
-            return '.tex'
-        elif a2x_format == 'text':
-            return '.text'
-        elif a2x_format == 'xhtml':
-            return '.html'
+__a2x_bld = SCons.Builder.Builder(
+    action = '${A2X} -f ${A2XFORMAT} ${A2XFLAGS} ${SOURCE}',
+    suffix = _gen_a2x_suffix,
+    single_source = True,
+    source_scanner = __ad_src_scanner,
+    emitter = _a2x_emitter,
+)
 
-    ad_scanner = SCons.Scanner.Scanner(asciidoc_scanner, recursive=True)
-
-    a2x = SCons.Builder.Builder(
-        action = '${A2X} -f ${A2XFORMAT} ${A2XFLAGS} ${SOURCE}',
-        suffix = gen_suffix,
-        single_source = True,
-        source_scanner = ad_scanner,
-        emitter = a2x_emitter,
-    )
-
-    return a2x
 
 def generate(env):
 
-    env['BUILDERS']['AsciiDoc'] = asciidoc_builder(env)
-    env['BUILDERS']['A2X']      = a2x_builder(env)
+    env['BUILDERS']['AsciiDoc'] = __asciidoc_bld
+    env['BUILDERS']['A2X']      = __a2x_bld
 
     # set defaults; should match the asciidoc/a2x defaults
     env['ASCIIDOC']        = 'asciidoc'
