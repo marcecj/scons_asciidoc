@@ -55,7 +55,6 @@ def _a2x_emitter(target, source, env):
 
     elif a2x_format == 'dvi':
 
-        # TODO: this format produces nothing on my system
         pass
 
     elif a2x_format == 'epub' and keep_temp:
@@ -111,7 +110,7 @@ def _gen_a2x_suffix(env, sources):
     if   a2x_format == 'chunked':
         return '.chunked'
     elif a2x_format == 'docbook':
-        return '.xml' # TODO: is it really one file?
+        return '.xml'
     elif a2x_format == 'dvi':
         return '.dvi'
     elif a2x_format == 'epub':
