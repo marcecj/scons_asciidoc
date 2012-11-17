@@ -48,7 +48,7 @@ def asciidoc_builder(env):
     ad_scanner = SCons.Scanner.Scanner(asciidoc_scanner, recursive=True)
 
     asciidoc = SCons.Builder.Builder(
-        action = [ad_action],
+        action = ad_action,
         suffix = gen_suffix,
         single_source = True,
         source_scanner = ad_scanner,
@@ -89,7 +89,7 @@ def a2x_builder(env):
     ad_scanner = SCons.Scanner.Scanner(asciidoc_scanner, recursive=True)
 
     a2x = SCons.Builder.Builder(
-        action = ['${A2X} -f ${A2XFORMAT} ${A2XFLAGS} ${SOURCE}'],
+        action = '${A2X} -f ${A2XFORMAT} ${A2XFLAGS} ${SOURCE}',
         suffix = gen_suffix,
         single_source = True,
         source_scanner = ad_scanner,
