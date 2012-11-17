@@ -51,7 +51,7 @@ def _a2x_emitter(target, source, env):
     # (I haven't verified ps, though)
     if   a2x_format == 'chunked':
 
-        file_list.append('index.chunked')
+        file_list.append(fbasename + '.chunked')
 
     elif a2x_format == 'dvi':
 
@@ -61,13 +61,13 @@ def _a2x_emitter(target, source, env):
     elif a2x_format == 'epub' and keep_temp:
 
         # FIXME: xsltproc fails on my system
-        file_list.append('index.epub.d')
+        file_list.append(fbasename + '.epub.d')
 
     elif a2x_format == 'htmlhelp' and keep_temp:
 
         # FIXME: fails on my system with a UnicodeDecodeError
         file_list.append(fbasename + '.hhc')
-        file_list.append('index.htmlhelp')
+        file_list.append(fbasename + '.htmlhelp')
 
     elif a2x_format == 'manpage':
 
