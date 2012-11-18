@@ -63,8 +63,7 @@ def _a2x_emitter(target, source, env):
     a2x_format = env['A2XFORMAT']
 
     # determine whether artifacts are to be kept or not
-    a2x_flags = env['A2XFLAGS']
-    a2x_flags = (a2x_flags if type(a2x_flags) is list else a2x_flags.split())
+    a2x_flags = env.Split(env['A2XFLAGS'])
     keep_temp = '-k' in a2x_flags or '--keep-artifacts' in a2x_flags
 
     file_list = []
@@ -195,7 +194,7 @@ def asciidoc_builder(env, target, source, *args, **kwargs):
 def a2x_builder(env, target, source, *args, **kwargs):
 
     a2x_format = env['A2XFORMAT']
-    a2x_flags  = env['A2XFLAGS']
+    a2x_flags  = env.Split(env['A2XFLAGS'])
 
     r = __a2x_bld(env, target, source, **kwargs)
 
@@ -203,7 +202,6 @@ def a2x_builder(env, target, source, *args, **kwargs):
     partitioned_r = _partition_targets(r, source)
 
     # determine whether artifacts are to be kept or not
-    a2x_flags = (a2x_flags if type(a2x_flags) is list else a2x_flags.split())
     keep_temp = '-k' in a2x_flags or '--keep-artifacts' in a2x_flags
 
     # make sure to clean up intermediary files when the target is cleaned
