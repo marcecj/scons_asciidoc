@@ -47,6 +47,13 @@ environment variables:
 - `A2XFLAGS`          -> misc. flags passed to `a2x`
 - `A2XFORMAT`         -> the format passed to the `-f` option
 
+## Related Software
+
+You could combine the AsciiDoc builder with the
+[https://bitbucket.org/dirkbaechle/scons_docbook](SCons DocBook tool) by Dirk
+Baechle as an alternative to using the A2X builder.  I've been meaning to try
+this myself.
+
 ## License
 
 See the file LICENSE.
