@@ -41,6 +41,7 @@ def _ad_emitter(target, source, env):
     # - image directories when the data-uri option is set:
     #     - iconsdir
     #     - imagesdir
+    # - images included with the image:[] macro
     # - AsciiDoc configuration files in the source directory:
     #     - asciidoc.conf
     #     - <backend>.conf and <backend>-<doctype>.conf
