@@ -234,9 +234,6 @@ def a2x_builder(env, target, source, *args, **kwargs):
             if keep_temp:
                 env.Ignore(xml_temp, html_files)
 
-            # these files are the actual builder output, so add them to results
-            r.extend(html_files)
-
         elif a2x_format == 'epub' and keep_temp:
 
             # FIXME: xsltproc fails here
