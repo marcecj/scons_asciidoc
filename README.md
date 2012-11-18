@@ -50,7 +50,7 @@ environment variables:
 ## Related Software
 
 You could combine the AsciiDoc builder with the
-[https://bitbucket.org/dirkbaechle/scons_docbook](SCons DocBook tool) by Dirk
+[SCons DocBook tool](https://bitbucket.org/dirkbaechle/scons_docbook) by Dirk
 Baechle as an alternative to using the A2X builder.  I've been meaning to try
 this myself.
 
