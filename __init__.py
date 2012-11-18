@@ -209,7 +209,7 @@ def a2x_builder(env, target, source, *args, **kwargs):
     # make sure to clean up intermediary files when the target is cleaned
     for entry in partitioned_r:
 
-        # docbook format needs no special handling
+        # docbook is the only format with one target per source
         if a2x_format == 'docbook':
             break
 
