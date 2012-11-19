@@ -56,9 +56,7 @@ def _gen_ad_suffix(env, sources):
 
     html_like = ('xhtml11', 'html', 'html4', 'html5', 'slidy', 'wordpress')
 
-    if   env['ASCIIDOCBACKEND'] == 'pdf':
-        return '.pdf'
-    elif env['ASCIIDOCBACKEND'] == 'latex':
+    if   env['ASCIIDOCBACKEND'] == 'latex':
         return '.tex'
     elif env['ASCIIDOCBACKEND'].startswith('docbook'):
         return '.xml'
