@@ -209,6 +209,7 @@ def a2x_builder(env, target, source, *args, **kwargs):
 
             css_file = os.sep.join([fpath, 'docbook-xsl.css'])
             cleanup_files.append(css_file)
+            r.append(css_file)
 
         env.Clean(t, cleanup_files)
 
