@@ -12,7 +12,6 @@ def _ad_scanner(node, env, path):
 
     fname = str(node)
 
-    # TODO: maybe raise an error here?
     if not os.path.isfile(fname):
         return []
 
