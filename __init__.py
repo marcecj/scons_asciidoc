@@ -158,7 +158,6 @@ def a2x_builder(env, target, source, *args, **kwargs):
     # any errors: "dvi", "ps"
     # FIXME: 'manpage' and 'epub' produce xsltproc failures
     for t, s in izip(partitioned_r, source):
-        print t,s
 
         # docbook is the only format with one target per source
         if a2x_format == 'docbook':
