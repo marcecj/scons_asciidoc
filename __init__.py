@@ -2,6 +2,7 @@ import SCons.Builder
 import SCons.Scanner
 import SCons.Util
 import os
+from itertools import izip
 
 # TODO: write tests
 
@@ -179,7 +180,7 @@ def _partition_targets(target, source):
     idx.append(len(target))
 
     # now split the target list
-    new_list = [target[s:e] for s,e in zip(idx[:-1], idx[1:])]
+    new_list = [target[s:e] for s,e in izip(idx[:-1], idx[1:])]
     new_list = SCons.Util.NodeList(new_list)
 
     return new_list
