@@ -51,59 +51,6 @@ def _ad_emitter(target, source, env):
 
     return (target, source)
 
-def _a2x_emitter(target, source, env):
-    """Target emitter for the A2X builder."""
-
-    # the a2x builder is single-source only, so we know there is only one source
-    # file to check
-    fname     = os.path.basename(source[0].path)
-    fbasename = fname.rpartition('.')[0]
-    fpath     = os.path.dirname(source[0].path)
-
-    a2x_format = env['A2XFORMAT']
-
-    # determine whether artifacts are to be kept or not
-    a2x_flags = env.Split(env['A2XFLAGS'])
-    keep_temp = '-k' in a2x_flags or '--keep-artifacts' in a2x_flags
-
-    file_list = []
-    if a2x_format != 'docbook' and keep_temp:
-        file_list.append(fbasename + '.xml')
-
-    # TODO: the following formats do not produce final output, but do not raise
-    # any errors: "dvi", "ps"
-    # NOTE: the following formats do not add additional targets: pdf, ps, tex
-    # (I haven't verified ps, though)
-    # NOTE: the following formats are handled in the pseudo-builder: chunked,
-    # epub, and the directory output of htmlhelp
-    if a2x_format == 'dvi':
-
-        pass
-
-    elif a2x_format == 'htmlhelp' and keep_temp:
-
-        # FIXME: fails on my system with a UnicodeDecodeError
-        file_list.append(fbasename + '.hhc')
-
-    elif a2x_format == 'manpage':
-
-        # FIXME: xsltproc fails here
-        pass
-
-    elif a2x_format == 'text' and keep_temp:
-
-        file_list.append(os.path.basename(target[0].path) + '.html')
-
-    elif a2x_format == 'xhtml':
-
-        file_list.append('docbook-xsl.css')
-
-    file_list = [os.sep.join([fpath, f]) for f in file_list]
-
-    target.extend(file_list)
-
-    return (target, source)
-
 def _gen_ad_suffix(env, sources):
     """Generate the AsciiDoc target suffix depending on the chosen backend."""
 
@@ -167,7 +114,7 @@ __a2x_bld = SCons.Builder.Builder(
     suffix = _gen_a2x_suffix,
     single_source = True,
     source_scanner = __ad_src_scanner,
-    emitter = [_a2x_emitter, _ad_emitter],
+    emitter = _ad_emitter,
 )
 
 def _partition_targets(target, source):
@@ -205,34 +152,34 @@ def a2x_builder(env, target, source, *args, **kwargs):
     keep_temp = '-k' in a2x_flags or '--keep-artifacts' in a2x_flags
 
     # make sure to clean up intermediary files when the target is cleaned
-    for entry in partitioned_r:
+    # NOTE: the following formats do not add additional targets: pdf, ps, tex
+    # (I haven't verified ps, though)
+    # FIXME: the following formats do not produce final output, but do not raise
+    # any errors: "dvi", "ps"
+    # FIXME: 'manpage' and 'epub' produce xsltproc failures
+    for t, s in izip(partitioned_r, source):
+        print t,s
 
         # docbook is the only format with one target per source
         if a2x_format == 'docbook':
             break
 
-        # the first entry is always the actual target; we know the emitter
-        # appends the xml intermediary, so it is always the second entry
-        t        = entry[0]
-        if keep_temp:
-            xml_temp = entry[1]
+        t = t[0]
 
         fbasename = t.path.rpartition('.')[0]
+        fpath     = os.path.dirname(str(s))
+
+        if keep_temp:
+            xml_temp = fbasename + '.xml'
 
         # Add t to the cleanup file list for when it's a directory
-        cleanup_files = [t]
+        cleanup_files = ([t, xml_temp] if keep_temp else [t])
 
         if a2x_format == 'chunked':
 
             html_files = env.Glob(os.sep.join([t.path, '*']))
 
             cleanup_files.extend(html_files)
-
-            env.Clean(t, cleanup_files)
-
-            # make sure the xml intermediary does not depend on the html files
-            if keep_temp:
-                env.Ignore(xml_temp, html_files)
 
         elif a2x_format == 'epub' and keep_temp:
 
@@ -243,24 +190,27 @@ def a2x_builder(env, target, source, *args, **kwargs):
             cleanup_files.append(epub_dir)
             cleanup_files.extend(epub_files)
 
-            env.Clean(t, cleanup_files)
-
-            # make sure the xml intermediary does not depend on the intermediate
-            # epub files
-            env.Ignore(xml_temp, epub_files)
-
         elif a2x_format == 'htmlhelp' and keep_temp:
 
             html_dir = fbasename + '.htmlhelp'
             html_files = env.Glob(os.sep.join([html_dir, '*']))
 
+            cleanup_files.append(fbasename + '.hhc')
             cleanup_files.append(html_dir)
             cleanup_files.extend(html_files)
 
-            env.Clean(t, cleanup_files)
+        elif a2x_format == 'text' and keep_temp:
 
-            # make sure the xml intermediary does not depend on the html files
-            env.Ignore(xml_temp, html_files)
+            html_file = t.path + '.html'
+
+            cleanup_files.append(html_file)
+
+        elif a2x_format == 'xhtml':
+
+            css_file = os.sep.join([fpath, 'docbook-xsl.css'])
+            cleanup_files.append(css_file)
+
+        env.Clean(t, cleanup_files)
 
     return r
 
