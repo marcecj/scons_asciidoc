@@ -51,7 +51,7 @@ _a2x_backend_suffix_map = {
     "dvi":        ".dvi",
     "epub":       ".epub",
     "htmlhelp":   ".hhp",
-    "manpage":    ".man",
+    "manpage":    ".man", # FIXME: this is wrong
     "pdf":        ".pdf",
     "ps":         ".ps",
     "tex":        ".tex",
