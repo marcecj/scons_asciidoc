@@ -252,6 +252,7 @@ def generate(env):
     env['BUILDERS']['A2X']      = a2x_builder
 
     # set defaults; should match the asciidoc/a2x defaults
+    # TODO: add ASCIIDOCVERSION and A2XVERSION variables.
     env['ASCIIDOC']        = 'asciidoc'
     env['ASCIIDOCBACKEND'] = 'html'
     env['A2X']             = 'a2x'
