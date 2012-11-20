@@ -144,10 +144,10 @@ __a2x_bld = SCons.Builder.Builder(
 def _partition_targets(target, source):
     """Partition target lists into one list per source."""
 
-    t_basename = [str(t).rpartition('.')[0] for t in target]
+    t_basename = [SCons.Util.splitext(str(t))[0] for t in target]
 
     # find the indices corresponding to the next source
-    idx = [t_basename.index(str(s).rpartition('.')[0]) for s in source]
+    idx = [t_basename.index(SCons.Util.splitext(str(s))[0]) for s in source]
     idx.append(len(target))
 
     # now split the target list
@@ -197,7 +197,7 @@ def a2x_builder(env, target, source, *args, **kwargs):
 
         t = t[0]
 
-        fbasename = t.path.rpartition('.')[0]
+        fbasename = SCons.Util.splitext(t.path)[0]
         fpath     = os.path.dirname(str(s))
 
         if keep_temp:
