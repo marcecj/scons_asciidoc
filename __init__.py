@@ -6,6 +6,18 @@ from itertools import izip
 
 # TODO: write tests
 
+_ad_valid_backends = frozenset((
+    "docbook45",
+    "docbook",
+    "xhtml11",
+    "html",
+    "html4",
+    "html5",
+    "slidy",
+    "wordpress",
+    "latex",
+))
+
 _ad_backend_suffix_map = {
     "docbook45":   ".xml",
     "docbook":     ".xml",
@@ -17,6 +29,20 @@ _ad_backend_suffix_map = {
     "wordpress":   ".html",
     "latex":       ".tex",
 }
+
+_a2x_valid_formats = frozenset((
+    "chunked",
+    "docbook",
+    "dvi",
+    "epub",
+    "htmlhelp",
+    "manpage",
+    "pdf",
+    "ps",
+    "tex",
+    "text",
+    "xhtml",
+))
 
 _a2x_backend_suffix_map = {
     "chunked":    ".chunked",
@@ -132,6 +158,11 @@ def _partition_targets(target, source):
 
 def asciidoc_builder(env, target, source, *args, **kwargs):
 
+    ad_backend = env['ASCIIDOCBACKEND']
+
+    if ad_backend not in _ad_valid_backends:
+        raise ValueError("Invalid AsciiDoc backend '%s'." % ad_backend)
+
     r = __asciidoc_bld(env, target, source, **kwargs)
 
     return r
@@ -140,6 +171,9 @@ def a2x_builder(env, target, source, *args, **kwargs):
 
     a2x_format = env['A2XFORMAT']
     a2x_flags  = env.Split(env['A2XFLAGS'])
+
+    if a2x_format not in _a2x_valid_formats:
+        raise ValueError("Invalid A2X format '%s'." % a2x_format)
 
     r = __a2x_bld(env, target, source, **kwargs)
 
