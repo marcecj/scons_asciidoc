@@ -1,4 +1,5 @@
 import SCons.Builder
+import SCons.Errors
 import SCons.Scanner
 import SCons.Util
 import os
@@ -58,6 +59,12 @@ _a2x_backend_suffix_map = {
     "xhtml":      ".html",
 }
 
+_valid_doctypes = frozenset((
+    "article",
+    "manpage",
+    "book",
+))
+
 def _ad_scanner(node, env, path):
     """Scans AsciiDoc files for include::[] directives"""
 
@@ -98,8 +105,8 @@ def _ad_emitter(target, source, env):
     #     - asciidoc.conf
     #     - <backend>.conf and <backend>-<doctype>.conf
     #     - <docfile>.conf and <docfile>-<backend>.conf
-    #     -> add "ASCIIDOCDOCTYPE" env var and add the appropriate conf file to the
-    #     sources if it exists
+    #     -> add each conf file to the sources if it exists, or just make the
+    #     target depend on it
 
     return (target, source)
 
@@ -119,9 +126,10 @@ def _gen_a2x_suffix(env, sources):
 
     return _a2x_backend_suffix_map[a2x_format]
 
-# TODO: add the -d option
 _ad_action = '${ASCIIDOC} \
-        -b ${ASCIIDOCBACKEND} ${ASCIIDOCFLAGS} \
+        -b ${ASCIIDOCBACKEND} \
+        -d ${ASCIIDOCDOCTYPE} \
+        ${ASCIIDOCFLAGS} \
         -o ${TARGET} ${SOURCE}'
 
 __asciidoc_bld = SCons.Builder.Builder(
@@ -132,9 +140,14 @@ __asciidoc_bld = SCons.Builder.Builder(
     emitter = _ad_emitter,
 )
 
+_a2x_action = '${A2X} \
+        -f ${A2XFORMAT} \
+        -d ${A2XDOCTYPE} \
+        ${A2XFLAGS} \
+        ${SOURCE}'
+
 __a2x_bld = SCons.Builder.Builder(
-    # TODO: add the -d option
-    action = '${A2X} -f ${A2XFORMAT} ${A2XFLAGS} ${SOURCE}',
+    action = _a2x_action,
     suffix = _gen_a2x_suffix,
     single_source = True,
     source_scanner = __ad_src_scanner,
@@ -159,9 +172,18 @@ def _partition_targets(target, source):
 def asciidoc_builder(env, target, source, *args, **kwargs):
 
     ad_backend = env['ASCIIDOCBACKEND']
+    ad_doctype = env['ASCIIDOCDOCTYPE']
 
     if ad_backend not in _ad_valid_backends:
         raise ValueError("Invalid AsciiDoc backend '%s'." % ad_backend)
+
+    if ad_doctype not in _valid_doctypes:
+        raise ValueError("Invalid AsciiDoc doctype '%s'." % ad_doctype)
+
+    if ad_doctype == 'book' and 'docbook' not in ad_backend:
+        raise SCons.Errors.UserError(
+            "Doctype 'book' only supported by docbook backends"
+        )
 
     r = __asciidoc_bld(env, target, source, *args, **kwargs)
 
@@ -169,11 +191,20 @@ def asciidoc_builder(env, target, source, *args, **kwargs):
 
 def a2x_builder(env, target, source, *args, **kwargs):
 
-    a2x_format = env['A2XFORMAT']
-    a2x_flags  = env.Split(env['A2XFLAGS'])
+    a2x_doctype = env['A2XDOCTYPE']
+    a2x_format  = env['A2XFORMAT']
+    a2x_flags   = env.Split(env['A2XFLAGS'])
 
     if a2x_format not in _a2x_valid_formats:
         raise ValueError("Invalid A2X format '%s'." % a2x_format)
+
+    if a2x_doctype not in _valid_doctypes:
+        raise ValueError("Invalid A2X doctype '%s'." % a2x_doctype)
+
+    if a2x_format == 'manpage' and a2x_doctype != 'manpage':
+        raise SCons.Errors.UserError(
+            "A2X format set to 'manpage', but Doctype set to '%s'." % a2x_doctype
+        )
 
     r = __a2x_bld(env, target, source, *args, **kwargs)
 
@@ -255,8 +286,10 @@ def generate(env):
     # TODO: add ASCIIDOCVERSION and A2XVERSION variables.
     env['ASCIIDOC']        = 'asciidoc'
     env['ASCIIDOCBACKEND'] = 'html'
+    env['ASCIIDOCDOCTYPE'] = 'article'
     env['A2X']             = 'a2x'
     env['A2XFORMAT']       = 'pdf'
+    env['A2XDOCTYPE']      = 'article'
 
 def exists(env):
     # expect a2x to be there if asciidoc is

@@ -43,9 +43,11 @@ environment variables:
 - `ASCIIDOC`          -> the name of the `asciidoc` executable
 - `ASCIIDOCFLAGS`     -> misc. flags passed to `asciidoc`
 - `ASCIIDOCBACKEND`   -> the backend passed to the `-b` option
+- `ASCIIDOCDOCTYPE`   -> the document type passed to the `-d` option
 - `A2X`               -> the name of the `a2x` executable
 - `A2XFLAGS`          -> misc. flags passed to `a2x`
 - `A2XFORMAT`         -> the format passed to the `-f` option
+- `A2XDOCTYPE`        -> the document type passed to the `-d` option
 
 ## Related Software
 
