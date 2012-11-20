@@ -6,6 +6,32 @@ from itertools import izip
 
 # TODO: write tests
 
+_ad_backend_suffix_map = {
+    "docbook45":   ".xml",
+    "docbook":     ".xml",
+    "xhtml11":     ".html",
+    "html":        ".html",
+    "html4":       ".html",
+    "html5":       ".html",
+    "slidy":       ".html",
+    "wordpress":   ".html",
+    "latex":       ".tex",
+}
+
+_a2x_backend_suffix_map = {
+    "chunked":    ".chunked",
+    "docbook":    ".xml",
+    "dvi":        ".dvi",
+    "epub":       ".epub",
+    "htmlhelp":   ".hhp",
+    "manpage":    ".man",
+    "pdf":        ".pdf",
+    "ps":         ".ps",
+    "tex":        ".tex",
+    "text":       ".text",
+    "xhtml":      ".html",
+}
+
 def _ad_scanner(node, env, path):
     """Scans AsciiDoc files for include::[] directives"""
 
@@ -54,14 +80,9 @@ def _ad_emitter(target, source, env):
 def _gen_ad_suffix(env, sources):
     """Generate the AsciiDoc target suffix depending on the chosen backend."""
 
-    html_like = ('xhtml11', 'html', 'html4', 'html5', 'slidy', 'wordpress')
+    ad_backend = env['ASCIIDOCBACKEND']
 
-    if   env['ASCIIDOCBACKEND'] == 'latex':
-        return '.tex'
-    elif env['ASCIIDOCBACKEND'].startswith('docbook'):
-        return '.xml'
-    elif env['ASCIIDOCBACKEND'] in html_like:
-        return '.html'
+    return _ad_backend_suffix_map[ad_backend]
 
 # needed in case you want to do something with the target
 # TODO: try out docbook, htmlhelp and manpage
@@ -70,28 +91,7 @@ def _gen_a2x_suffix(env, sources):
 
     a2x_format = env['A2XFORMAT']
 
-    if   a2x_format == 'chunked':
-        return '.chunked'
-    elif a2x_format == 'docbook':
-        return '.xml'
-    elif a2x_format == 'dvi':
-        return '.dvi'
-    elif a2x_format == 'epub':
-        return '.epub'
-    elif a2x_format == 'htmlhelp':
-        return '.hhp'
-    elif a2x_format == 'manpage':
-        return '.man'
-    elif a2x_format == 'pdf':
-        return '.pdf'
-    elif a2x_format == 'ps':
-        return '.ps'
-    elif a2x_format == 'tex':
-        return '.tex'
-    elif a2x_format == 'text':
-        return '.text'
-    elif a2x_format == 'xhtml':
-        return '.html'
+    return _a2x_backend_suffix_map[a2x_format]
 
 # TODO: add the -d option
 _ad_action = '${ASCIIDOC} \
