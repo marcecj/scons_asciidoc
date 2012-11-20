@@ -163,7 +163,7 @@ def asciidoc_builder(env, target, source, *args, **kwargs):
     if ad_backend not in _ad_valid_backends:
         raise ValueError("Invalid AsciiDoc backend '%s'." % ad_backend)
 
-    r = __asciidoc_bld(env, target, source, **kwargs)
+    r = __asciidoc_bld(env, target, source, *args, **kwargs)
 
     return r
 
@@ -175,7 +175,7 @@ def a2x_builder(env, target, source, *args, **kwargs):
     if a2x_format not in _a2x_valid_formats:
         raise ValueError("Invalid A2X format '%s'." % a2x_format)
 
-    r = __a2x_bld(env, target, source, **kwargs)
+    r = __a2x_bld(env, target, source, *args, **kwargs)
 
     # create a list of target lists, one per source
     partitioned_r = _partition_targets(r, source)
