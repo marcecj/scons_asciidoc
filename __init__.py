@@ -111,8 +111,8 @@ __ad_src_scanner = SCons.Scanner.Scanner(_ad_scanner, recursive=True)
 def _ad_add_extra_depends(env, target, source):
     """Add extra dependencies to an asciidoc target."""
 
-    backend = env['ASCIIDOCBACKEND']
-    doctype = env['ASCIIDOCDOCTYPE']
+    backend = env['AD_BACKEND']
+    doctype = env['AD_DOCTYPE']
 
     src = str(source[0])
     s = SCons.Util.splitext(os.path.basename(src))[0]
@@ -127,7 +127,7 @@ def _ad_add_extra_depends(env, target, source):
     )
 
     conf_files = [os.sep.join([d, c]) for c in conf_files]
-    conf_files.extend(env['ASCIIDOCCONFFILES'])
+    conf_files.extend(env['AD_CONFFILES'])
 
     for c in conf_files:
         if os.path.isfile(c):
@@ -136,7 +136,7 @@ def _ad_add_extra_depends(env, target, source):
 def _a2x_add_extra_depends(env, target, source):
     """Add extra dependencies to an a2x target."""
 
-    doctype = env['A2XDOCTYPE']
+    doctype = env['A2X_DOCTYPE']
 
     src = str(source[0])
     s = SCons.Util.splitext(os.path.basename(src))[0]
@@ -151,7 +151,7 @@ def _a2x_add_extra_depends(env, target, source):
     )
 
     conf_files = [os.sep.join([d, c]) for c in conf_files]
-    conf_files.append(env['A2XCONF'])
+    conf_files.append(env['A2X_CONFFILE'])
 
     for c in conf_files:
         if os.path.isfile(c):
@@ -160,7 +160,7 @@ def _a2x_add_extra_depends(env, target, source):
 def _gen_ad_suffix(env, sources):
     """Generate the AsciiDoc target suffix depending on the chosen backend."""
 
-    ad_backend = env['ASCIIDOCBACKEND']
+    ad_backend = env['AD_BACKEND']
 
     return _ad_backend_suffix_map[ad_backend]
 
@@ -169,23 +169,23 @@ def _gen_ad_suffix(env, sources):
 def _gen_a2x_suffix(env, sources):
     """Generate the a2x target suffix depending on the chosen format."""
 
-    a2x_format = env['A2XFORMAT']
+    a2x_format = env['A2X_FORMAT']
 
     return _a2x_backend_suffix_map[a2x_format]
 
 def get_ad_conf_list(target, source, env, for_signature):
-    return ' '.join('-f ' + c for c in env['ASCIIDOCCONFFILES'])
+    return ' '.join('-f ' + c for c in env['AD_CONFFILES'])
 
 def get_a2x_conf(target, source, env, for_signature):
-    if env['A2XCONF']:
-        return "--conf-file=" + env['A2XCONF']
+    if env['A2X_CONFFILE']:
+        return "--conf-file=" + env['A2X_CONFFILE']
     return ''
 
-_ad_action = '${ASCIIDOC} \
-        -b ${ASCIIDOCBACKEND} \
-        -d ${ASCIIDOCDOCTYPE} \
+_ad_action = '${AD_ASCIIDOC} \
+        -b ${AD_BACKEND} \
+        -d ${AD_DOCTYPE} \
         ${AD_GET_CONF} \
-        ${ASCIIDOCFLAGS} \
+        ${AD_FLAGS} \
         -o ${TARGET} ${SOURCE}'
 
 __asciidoc_bld = SCons.Builder.Builder(
@@ -195,11 +195,11 @@ __asciidoc_bld = SCons.Builder.Builder(
     source_scanner = __ad_src_scanner,
 )
 
-_a2x_action = '${A2X} \
-        -f ${A2XFORMAT} \
-        -d ${A2XDOCTYPE} \
+_a2x_action = '${A2X_A2X} \
+        -f ${A2X_FORMAT} \
+        -d ${A2X_DOCTYPE} \
         ${A2X_GET_CONF} \
-        ${A2XFLAGS} \
+        ${A2X_FLAGS} \
         ${SOURCE}'
 
 __a2x_bld = SCons.Builder.Builder(
@@ -226,8 +226,8 @@ def _partition_targets(target, source):
 
 def asciidoc_builder(env, target, source, *args, **kwargs):
 
-    ad_backend = env['ASCIIDOCBACKEND']
-    ad_doctype = env['ASCIIDOCDOCTYPE']
+    ad_backend = env['AD_BACKEND']
+    ad_doctype = env['AD_DOCTYPE']
 
     if ad_backend not in _ad_valid_backends:
         raise ValueError("Invalid AsciiDoc backend '%s'." % ad_backend)
@@ -252,9 +252,9 @@ def asciidoc_builder(env, target, source, *args, **kwargs):
 
 def a2x_builder(env, target, source, *args, **kwargs):
 
-    a2x_doctype = env['A2XDOCTYPE']
-    a2x_format  = env['A2XFORMAT']
-    a2x_flags   = env.Split(env['A2XFLAGS'])
+    a2x_doctype = env['A2X_DOCTYPE']
+    a2x_format  = env['A2X_FORMAT']
+    a2x_flags   = env.Split(env['A2X_FLAGS'])
 
     if a2x_format not in _a2x_valid_formats:
         raise ValueError("Invalid A2X format '%s'." % a2x_format)
@@ -347,16 +347,16 @@ def generate(env):
 
     # set defaults; should match the asciidoc/a2x defaults
     # TODO: add ASCIIDOCVERSION and A2XVERSION variables.
-    env['ASCIIDOC']        = 'asciidoc'
-    env['ASCIIDOCBACKEND'] = 'html'
-    env['ASCIIDOCDOCTYPE'] = 'article'
-    env['ASCIIDOCCONFFILES'] = []
-    env['AD_GET_CONF']     = get_ad_conf_list
-    env['A2X']             = 'a2x'
-    env['A2XFORMAT']       = 'pdf'
-    env['A2XDOCTYPE']      = 'article'
-    env['A2XCONF']         = ''
-    env['A2X_GET_CONF']    = get_a2x_conf
+    env['AD_ASCIIDOC']  = 'asciidoc'
+    env['AD_BACKEND']   = 'html'
+    env['AD_DOCTYPE']   = 'article'
+    env['AD_CONFFILES'] = []
+    env['AD_GET_CONF']  = get_ad_conf_list
+    env['A2X_A2X']      = 'a2x'
+    env['A2X_FORMAT']   = 'pdf'
+    env['A2X_DOCTYPE']  = 'article'
+    env['A2X_CONFFILE'] = ''
+    env['A2X_GET_CONF'] = get_a2x_conf
 
 def exists(env):
     # expect a2x to be there if asciidoc is

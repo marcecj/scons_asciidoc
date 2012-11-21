@@ -40,14 +40,14 @@ To compile an AsciiDoc source file, use the builder AsciiDoc(), like so:
 To manipulate the behaviour of the builders, you can specify the following
 environment variables:
 
-- `ASCIIDOC`          -> the name of the `asciidoc` executable
-- `ASCIIDOCFLAGS`     -> misc. flags passed to `asciidoc`
-- `ASCIIDOCBACKEND`   -> the backend passed to the `-b` option
-- `ASCIIDOCDOCTYPE`   -> the document type passed to the `-d` option
-- `A2X`               -> the name of the `a2x` executable
-- `A2XFLAGS`          -> misc. flags passed to `a2x`
-- `A2XFORMAT`         -> the format passed to the `-f` option
-- `A2XDOCTYPE`        -> the document type passed to the `-d` option
+- `AD_ASCIIDOC` -> the name of the `asciidoc` executable
+- `AD_FLAGS`    -> misc. flags passed to `asciidoc`
+- `AD_BACKEND`  -> the backend passed to the `-b` option
+- `AD_DOCTYPE`  -> the document type passed to the `-d` option
+- `A2X_A2X`     -> the name of the `a2x` executable
+- `A2X_FLAGS`   -> misc. flags passed to `a2x`
+- `A2X_FORMAT`  -> the format passed to the `-f` option
+- `A2X_DOCTYPE` -> the document type passed to the `-d` option
 
 ## Related Software
 
