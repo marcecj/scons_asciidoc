@@ -245,7 +245,6 @@ def a2x_builder(env, target, source, *args, **kwargs):
 
         elif a2x_format == 'epub' and keep_temp:
 
-            # FIXME: xsltproc fails here
             epub_dir = fbasename + '.epub.d'
             epub_files = env.Glob(os.sep.join([epub_dir, '*']))
 
