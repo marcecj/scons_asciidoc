@@ -47,13 +47,16 @@ _a2x_valid_formats = frozenset((
     "xhtml",
 ))
 
+# in the case of the manpage backend, the document should have the category as
+# part of its name, e.g., "myprog.1.txt", in which case the target becomes
+# "myprog.1".
 _a2x_backend_suffix_map = {
     "chunked":    ".chunked",
     "docbook":    ".xml",
     "dvi":        ".dvi",
     "epub":       ".epub",
     "htmlhelp":   ".hhp",
-    "manpage":    ".man", # FIXME: this is wrong
+    "manpage":    "",
     "pdf":        ".pdf",
     "ps":         ".ps",
     "tex":        ".tex",
