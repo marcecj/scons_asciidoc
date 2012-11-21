@@ -105,6 +105,9 @@ __ad_src_scanner = SCons.Scanner.Scanner(_ad_scanner, recursive=True)
 #     - <docfile>.conf and <docfile>-<backend>.conf
 #     -> add each conf file to the sources if it exists, or just make the
 #     target depend on it
+# - other relevant options, like --conf-file, and other implicit files used
+#
+# (again, see http://www.methods.co.nz/asciidoc/userguide.html#X27 for more)
 def _ad_emitter(target, source, env):
     """Target emitter for the AsciiDoc builder."""
 
