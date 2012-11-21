@@ -93,20 +93,20 @@ __ad_src_scanner = SCons.Scanner.Scanner(_ad_scanner, recursive=True)
 # directory in $HOME, /etc/ or /usr/local/etc/ (see
 # http://www.methods.co.nz/asciidoc/userguide.html#X27).  I believe that is
 # *outside* the scope of this AsciiDoc tool.
+#
+# Actual potential candidates to be emitted here:
+# - image directories when the data-uri option is set:
+#     - iconsdir
+#     - imagesdir
+# - images included with the image:[] macro
+# - AsciiDoc configuration files in the source directory:
+#     - asciidoc.conf
+#     - <backend>.conf and <backend>-<doctype>.conf
+#     - <docfile>.conf and <docfile>-<backend>.conf
+#     -> add each conf file to the sources if it exists, or just make the
+#     target depend on it
 def _ad_emitter(target, source, env):
     """Target emitter for the AsciiDoc builder."""
-
-    # Actual potential candidates to be emitted here:
-    # - image directories when the data-uri option is set:
-    #     - iconsdir
-    #     - imagesdir
-    # - images included with the image:[] macro
-    # - AsciiDoc configuration files in the source directory:
-    #     - asciidoc.conf
-    #     - <backend>.conf and <backend>-<doctype>.conf
-    #     - <docfile>.conf and <docfile>-<backend>.conf
-    #     -> add each conf file to the sources if it exists, or just make the
-    #     target depend on it
 
     return (target, source)
 
