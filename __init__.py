@@ -68,7 +68,7 @@ _valid_doctypes = frozenset((
 ))
 
 def _ad_scanner(node, env, path):
-    """Scans AsciiDoc files for include::[] directives"""
+    """Scans AsciiDoc files for implicit dependencies."""
 
     import re
 
@@ -84,6 +84,7 @@ def _ad_scanner(node, env, path):
     return txt_files + img_files
 
 def _ad_scanner_check(node, env):
+    """Check whether a node should be scanned."""
 
     # Only scan asciidoc source files (put another way, *do not* scan things
     # like image files)
@@ -104,8 +105,6 @@ def _gen_ad_suffix(env, sources):
 
     return _ad_backend_suffix_map[ad_backend]
 
-# needed in case you want to do something with the target
-# TODO: try out docbook, htmlhelp and manpage
 def _gen_a2x_suffix(env, sources):
     """Generate the a2x target suffix depending on the chosen format."""
 
@@ -113,10 +112,10 @@ def _gen_a2x_suffix(env, sources):
 
     return _a2x_backend_suffix_map[a2x_format]
 
-def get_ad_conf_list(target, source, env, for_signature):
+def _gen_ad_conf_str(target, source, env, for_signature):
     return ' '.join('-f ' + c for c in env['AD_CONFFILES'])
 
-def get_a2x_conf(target, source, env, for_signature):
+def _gen_a2x_conf_str(target, source, env, for_signature):
     if env['A2X_CONFFILE']:
         return "--conf-file=" + env['A2X_CONFFILE']
     return ''
@@ -223,6 +222,7 @@ def _a2x_add_extra_depends(env, target, source):
             env.Depends(target, c)
 
 def asciidoc_builder(env, target, source, *args, **kwargs):
+    """An asciidoc pseudo-builder."""
 
     ad_backend = env['AD_BACKEND']
     ad_doctype = env['AD_DOCTYPE']
@@ -247,6 +247,7 @@ def asciidoc_builder(env, target, source, *args, **kwargs):
     return r
 
 def a2x_builder(env, target, source, *args, **kwargs):
+    """An a2x pseudo-builder."""
 
     a2x_doctype = env['A2X_DOCTYPE']
     a2x_format  = env['A2X_FORMAT']
@@ -267,8 +268,9 @@ def a2x_builder(env, target, source, *args, **kwargs):
     r = __a2x_bld(env, target, source, *args, **kwargs)
 
     # make sure to clean up intermediary files when the target is cleaned
-    # NOTE: the following formats do not add additional targets: pdf, ps, tex
+    # TODO: the following formats do not add additional targets: pdf, ps, tex
     # (I haven't verified ps, though)
+    # TODO: try out docbook, htmlhelp and manpage
     # FIXME: the following formats do not produce final output, but do not raise
     # any errors: "dvi", "ps"
     # FIXME: 'manpage' and 'epub' produce xsltproc failures
@@ -382,21 +384,21 @@ def generate(env):
     ad_proc = subp.Popen(['asciidoc', '--version'], stdout=subp.PIPE)
     ad_ver  = ad_proc.communicate()[0].split()[-1]
 
-    # set defaults; should match the asciidoc/a2x defaults
-
+    # set asciidoc defaults; should match the asciidoc(1) defaults
     env['AD_ASCIIDOC']  = _get_prog_path(env, 'AD_ASCIIDOC', 'asciidoc')
     env['AD_BACKEND']   = 'html'
     env['AD_DOCTYPE']   = 'article'
     env['AD_CONFFILES'] = []
-    env['AD_GET_CONF']  = get_ad_conf_list
+    env['AD_GET_CONF']  = _gen_ad_conf_str
     env['AD_VERSION']   = ad_ver
 
+    # set a2x defaults; should match the a2x(1) defaults
     env['A2X_A2X']      = _get_prog_path(env, 'A2X_A2X', 'a2x')
     env['A2X_FORMAT']   = 'pdf'
     env['A2X_DOCTYPE']  = 'article'
     env['A2X_CONFFILE'] = ''
     env['A2X_KEEPARTIFACTS'] = False
-    env['A2X_GET_CONF'] = get_a2x_conf
+    env['A2X_GET_CONF'] = _gen_a2x_conf_str
     env['A2X_VERSION']  = a2x_ver
 
 def exists(env):
