@@ -203,10 +203,11 @@ __asciidoc_bld = SCons.Builder.Builder(
     source_scanner = __ad_src_scanner,
 )
 
-_a2x_action = '${A2X_A2X} \
+_a2x_action = "${A2X_A2X} \
         -f ${A2X_FORMAT} \
         -d ${A2X_DOCTYPE} \
         ${A2X_GET_CONF} \
+        $( ${A2X_KEEPARTIFACTS and '-k' or ''} $)\
         ${A2X_FLAGS} \
         -D ${TARGET.dir} \
         ${SOURCE}"
@@ -264,6 +265,7 @@ def a2x_builder(env, target, source, *args, **kwargs):
     a2x_doctype = env['A2X_DOCTYPE']
     a2x_format  = env['A2X_FORMAT']
     a2x_flags   = env.Split(env['A2X_FLAGS'])
+    keep_temp   = env['A2X_KEEPARTIFACTS']
 
     if a2x_format not in _a2x_valid_formats:
         raise ValueError("Invalid A2X format '%s'." % a2x_format)
@@ -280,9 +282,6 @@ def a2x_builder(env, target, source, *args, **kwargs):
 
     # create a list of target lists, one per source
     partitioned_r = _partition_targets(r, source)
-
-    # determine whether artifacts are to be kept or not
-    keep_temp = '-k' in a2x_flags or '--keep-artifacts' in a2x_flags
 
     # make sure to clean up intermediary files when the target is cleaned
     # NOTE: the following formats do not add additional targets: pdf, ps, tex
@@ -365,6 +364,7 @@ def generate(env):
     env['A2X_FORMAT']   = 'pdf'
     env['A2X_DOCTYPE']  = 'article'
     env['A2X_CONFFILE'] = ''
+    env['A2X_KEEPARTIFACTS'] = False
     env['A2X_GET_CONF'] = get_a2x_conf
 
 def exists(env):
