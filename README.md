@@ -19,10 +19,10 @@ The SCons AsciiDoc tool depends on the obvious:
 - SCons
 - AsciiDoc (with all its dependencies, depending on what output you want)
 
-If you use git, installation is easy: you can just add this repository as a git
-submodule in the `site_scons/site_tools` directory in `asciidoc`.
+If your project uses git, installation is easy: you can just add this repository
+as a git submodule in the `site_scons/site_tools` directory in `asciidoc`.
 
-If you don't use git, you can copy the repository into your projects
+If your project does not use git, you can copy the repository into your projects
 `site_scons/site_tools` directory into a subdirectory named `asciidoc`.
 Alternatively, you could clone the repository into
 `$HOME/.scons/site_scons/site_tools`, again, into a subdirectory named
@@ -41,8 +41,8 @@ To compile an AsciiDoc source file, you can use either the `AsciiDoc()` or the
     docs = env.AsciiDoc(['readme.txt'])
     pdf  = env.A2X(['readme.txt'])
 
-Note that due to the nature of the `a2x` program (you cannot specify the output
-file name), specifying the target of the `A2X` builder only changes the
+Note that due to a limitation of the `a2x` program (you cannot specify the
+output file name), specifying the target of the `A2X` builder only changes the
 output directory (the `a2x` `-D` option).  Regardless, the combination of this
 builder and variant directories should work.
 
@@ -63,7 +63,7 @@ construction variables (variables for internal use are not listed here):
 Finally, there is also a variable `A2X_KEEPARTIFACTS`, which defines whether
 build artifacts should be deleted by `a2x` or not.  This variable sets the `a2x`
 `-k` option when true (the default).  This should normally not need to be
-modified, but *can* be, "just in case."
+modified, but *can* be, "just in case".
 
 To override these variables for individual source files, SCons lets you pass
 construction variables as keyword arguments to builders.  For example, to build
@@ -72,7 +72,7 @@ one document as a website and another as a manpage, you can do the following:
     web = env.AsciiDoc(['website.txt'], AD_BACKEND='html5')
     # man.path is 'prog.1'
     man = env.A2X(['prog.1.txt'],
-                  AD_BACKEND='manpage', AD_DOCTYPE='manpage')
+                  A2X_BACKEND='manpage', A2X_DOCTYPE='manpage')
 
 As can be seen here, in the case of the manpage backend, the document should
 have the category as part of its name, as the target file name is identical to
@@ -81,10 +81,10 @@ mentioned above).
 
 Furthermore, the tool adds the construction variables `AD_VERSION` and
 `A2X_VERSION`.  For this to work in the case of non-standard executable
-locations, you can set the `AD_ASCIIDOC` and `A2X_A2X` construction variables at
-environment initialisation time, e.g.:
+locations (as might be the case under Windows), you can set the `AD_ASCIIDOC`
+and `A2X_A2X` construction variables at environment initialisation time, e.g.:
 
-    env = Environment(AD_ASCIIDOC='/path/to/asciidoc'
+    env = Environment(AD_ASCIIDOC='/path/to/asciidoc',
                       tools = ['default', 'asciidoc'])
 
 This is especially handy in combination with the SCons `ARGUMENTS` dictionary.
