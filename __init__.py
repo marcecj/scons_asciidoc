@@ -331,6 +331,7 @@ def a2x_builder(env, target, source, *args, **kwargs):
 
 def generate(env):
 
+    # put the builders in the environment
     env['BUILDERS']['AsciiDoc'] = asciidoc_builder
     env['BUILDERS']['A2X']      = a2x_builder
 
