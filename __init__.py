@@ -70,9 +70,7 @@ def _ad_scanner(node, env, path):
 
     import re
 
-    fname = str(node)
-
-    if not os.path.isfile(fname):
+    if not os.path.isfile(node.path):
         return []
 
     reg = re.compile('include::(.+)\[\]')
