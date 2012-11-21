@@ -55,6 +55,9 @@ here):
   not.  This variable sets the a2x `-k` option when true (the default).  This
   should normally not need to be modified, but *can* be, "just in case."
 
+Furthermore, the tool adds the construction variables `AD_VERSION` and
+`A2X_VERSION`.
+
 ## Related Software
 
 You could combine the AsciiDoc builder with the

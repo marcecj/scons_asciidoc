@@ -4,6 +4,7 @@ import SCons.Scanner
 import SCons.Script
 import SCons.Util
 import os
+import subprocess as subp
 from itertools import izip
 
 # TODO: write tests
@@ -333,19 +334,51 @@ def generate(env):
     env['BUILDERS']['AsciiDoc'] = asciidoc_builder
     env['BUILDERS']['A2X']      = a2x_builder
 
+    # get the asciidoc version
+    #
+    # NOTE: I originally wanted to do something like this:
+    #
+    #     class get_prog_version(object):
+    #         def __init__(self, progvar):
+    #             self.progvar = progvar
+    #
+    #         def __call__(self, target, source, env, for_signature):
+    #             prog_exe = env[self.progvar]
+    #             proc = subp.Popen([prog_exe, '--version'], stdout=subp.PIPE)
+    #             out = proc.communicate()[0].split()[-1]
+    #             return out
+    #
+    # An then do:
+    #
+    #     env['GET_PROG_VERSION'] = get_prog_version
+    #     env['AD_VERSION']       = "${GET_PROG_VERSION('AD_ASCIIDOC')}"
+    #     env['A2X_VERSION']      = "${GET_PROG_VERSION('A2X_A2X')}"
+    #
+    # In order to let AD_ASCIIDOC/A2X_A2X be defined by the calling SConstruct
+    # file (to implement a sort of lazy evaluation of the version variables).
+    # But it seems as if that is not supported by SCons.
+
+    a2x_proc = subp.Popen(['a2x', '--version'], stdout=subp.PIPE)
+    a2x_ver = a2x_proc.communicate()[0].split()[-1]
+
+    # get the a2x version
+    ad_proc = subp.Popen(['asciidoc', '--version'], stdout=subp.PIPE)
+    ad_ver  = ad_proc.communicate()[0].split()[-1]
+
     # set defaults; should match the asciidoc/a2x defaults
-    # TODO: add ASCIIDOCVERSION and A2XVERSION variables.
     env['AD_ASCIIDOC']  = 'asciidoc'
     env['AD_BACKEND']   = 'html'
     env['AD_DOCTYPE']   = 'article'
     env['AD_CONFFILES'] = []
     env['AD_GET_CONF']  = get_ad_conf_list
+    env['AD_VERSION']   = ad_ver
     env['A2X_A2X']      = 'a2x'
     env['A2X_FORMAT']   = 'pdf'
     env['A2X_DOCTYPE']  = 'article'
     env['A2X_CONFFILE'] = ''
     env['A2X_KEEPARTIFACTS'] = False
     env['A2X_GET_CONF'] = get_a2x_conf
+    env['A2X_VERSION']  = a2x_ver
 
 def exists(env):
     # expect a2x to be there if asciidoc is
