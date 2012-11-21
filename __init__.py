@@ -219,21 +219,6 @@ __a2x_bld = SCons.Builder.Builder(
     source_scanner = __ad_src_scanner,
 )
 
-def _partition_targets(target, source):
-    """Partition target lists into one list per source."""
-
-    t_basename = [SCons.Util.splitext(str(t))[0] for t in target]
-
-    # find the indices corresponding to the next source
-    idx = [t_basename.index(SCons.Util.splitext(str(s))[0]) for s in source]
-    idx.append(len(target))
-
-    # now split the target list
-    new_list = [target[s:e] for s,e in izip(idx[:-1], idx[1:])]
-    new_list = SCons.Util.NodeList(new_list)
-
-    return new_list
-
 def asciidoc_builder(env, target, source, *args, **kwargs):
 
     ad_backend = env['AD_BACKEND']
@@ -252,11 +237,9 @@ def asciidoc_builder(env, target, source, *args, **kwargs):
 
     r = __asciidoc_bld(env, target, source, *args, **kwargs)
 
-    partitioned_r = _partition_targets(r, source)
-
     # add extra dependencies, like conf files
-    for t, s in izip(partitioned_r, source):
-        _ad_add_extra_depends(env, t[0], [s])
+    for t, s in izip(r, source):
+        _ad_add_extra_depends(env, t, [s])
 
     return r
 
@@ -280,22 +263,17 @@ def a2x_builder(env, target, source, *args, **kwargs):
 
     r = __a2x_bld(env, target, source, *args, **kwargs)
 
-    # create a list of target lists, one per source
-    partitioned_r = _partition_targets(r, source)
-
     # make sure to clean up intermediary files when the target is cleaned
     # NOTE: the following formats do not add additional targets: pdf, ps, tex
     # (I haven't verified ps, though)
     # FIXME: the following formats do not produce final output, but do not raise
     # any errors: "dvi", "ps"
     # FIXME: 'manpage' and 'epub' produce xsltproc failures
-    for t, s in izip(partitioned_r, source):
+    for t, s in izip(r, source):
 
         # docbook is the only format with one target per source
         if a2x_format == 'docbook':
             break
-
-        t = t[0]
 
         # add extra dependencies, like conf files
         _a2x_add_extra_depends(env, t, [s])
