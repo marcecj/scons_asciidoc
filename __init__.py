@@ -127,6 +127,7 @@ def _ad_add_extra_depends(env, target, source):
     )
 
     conf_files = [os.sep.join([d, c]) for c in conf_files]
+    conf_files.extend(env['ASCIIDOCCONFFILES'])
 
     for c in conf_files:
         if os.path.isfile(c):
@@ -150,6 +151,7 @@ def _a2x_add_extra_depends(env, target, source):
     )
 
     conf_files = [os.sep.join([d, c]) for c in conf_files]
+    conf_files.append(env['A2XCONF'])
 
     for c in conf_files:
         if os.path.isfile(c):
@@ -171,9 +173,18 @@ def _gen_a2x_suffix(env, sources):
 
     return _a2x_backend_suffix_map[a2x_format]
 
+def get_ad_conf_list(target, source, env, for_signature):
+    return ' '.join('-f ' + c for c in env['ASCIIDOCCONFFILES'])
+
+def get_a2x_conf(target, source, env, for_signature):
+    if env['A2XCONF']:
+        return "--conf-file=" + env['A2XCONF']
+    return ''
+
 _ad_action = '${ASCIIDOC} \
         -b ${ASCIIDOCBACKEND} \
         -d ${ASCIIDOCDOCTYPE} \
+        ${AD_GET_CONF} \
         ${ASCIIDOCFLAGS} \
         -o ${TARGET} ${SOURCE}'
 
@@ -187,6 +198,7 @@ __asciidoc_bld = SCons.Builder.Builder(
 _a2x_action = '${A2X} \
         -f ${A2XFORMAT} \
         -d ${A2XDOCTYPE} \
+        ${A2X_GET_CONF} \
         ${A2XFLAGS} \
         ${SOURCE}'
 
@@ -338,9 +350,13 @@ def generate(env):
     env['ASCIIDOC']        = 'asciidoc'
     env['ASCIIDOCBACKEND'] = 'html'
     env['ASCIIDOCDOCTYPE'] = 'article'
+    env['ASCIIDOCCONFFILES'] = []
+    env['AD_GET_CONF']     = get_ad_conf_list
     env['A2X']             = 'a2x'
     env['A2XFORMAT']       = 'pdf'
     env['A2XDOCTYPE']      = 'article'
+    env['A2XCONF']         = ''
+    env['A2X_GET_CONF']    = get_a2x_conf
 
 def exists(env):
     # expect a2x to be there if asciidoc is
