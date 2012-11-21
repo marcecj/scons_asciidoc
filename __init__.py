@@ -82,7 +82,7 @@ def _ad_scanner(node, env, path):
 
 __ad_src_scanner = SCons.Scanner.Scanner(_ad_scanner, recursive=True)
 
-# TODO: finish this emitter
+# TODO: finish these functions
 #
 # NOTE: AsciiDoc does not seem to output extra targets.  In the case where JS
 # and CSS is linked to the HTML file, it must be manually copied to the
@@ -108,10 +108,52 @@ __ad_src_scanner = SCons.Scanner.Scanner(_ad_scanner, recursive=True)
 # - other relevant options, like --conf-file, and other implicit files used
 #
 # (again, see http://www.methods.co.nz/asciidoc/userguide.html#X27 for more)
-def _ad_emitter(target, source, env):
-    """Target emitter for the AsciiDoc builder."""
+def _ad_add_extra_depends(env, target, source):
+    """Add extra dependencies to an asciidoc target."""
 
-    return (target, source)
+    backend = env['ASCIIDOCBACKEND']
+    doctype = env['ASCIIDOCDOCTYPE']
+
+    src = str(source[0])
+    s = SCons.Util.splitext(os.path.basename(src))[0]
+    d = os.path.dirname(src)
+
+    conf_files = (
+        "asciidoc.conf",
+        backend + ".conf",
+        backend + "-"      + doctype + ".conf",
+        s       + ".conf",
+        s       + "-"      + backend + ".conf",
+    )
+
+    conf_files = [os.sep.join([d, c]) for c in conf_files]
+
+    for c in conf_files:
+        if os.path.isfile(c):
+            env.Depends(target, c)
+
+def _a2x_add_extra_depends(env, target, source):
+    """Add extra dependencies to an a2x target."""
+
+    doctype = env['A2XDOCTYPE']
+
+    src = str(source[0])
+    s = SCons.Util.splitext(os.path.basename(src))[0]
+    d = os.path.dirname(src)
+
+    conf_files = (
+        "asciidoc.conf",
+        "docbook.conf",
+        "docbook-" + doctype + ".conf",
+        s + ".conf",
+        s + "-docbook.conf",
+    )
+
+    conf_files = [os.sep.join([d, c]) for c in conf_files]
+
+    for c in conf_files:
+        if os.path.isfile(c):
+            env.Depends(target, c)
 
 def _gen_ad_suffix(env, sources):
     """Generate the AsciiDoc target suffix depending on the chosen backend."""
@@ -140,7 +182,6 @@ __asciidoc_bld = SCons.Builder.Builder(
     suffix = _gen_ad_suffix,
     single_source = True,
     source_scanner = __ad_src_scanner,
-    emitter = _ad_emitter,
 )
 
 _a2x_action = '${A2X} \
@@ -154,7 +195,6 @@ __a2x_bld = SCons.Builder.Builder(
     suffix = _gen_a2x_suffix,
     single_source = True,
     source_scanner = __ad_src_scanner,
-    emitter = _ad_emitter,
 )
 
 def _partition_targets(target, source):
@@ -189,6 +229,12 @@ def asciidoc_builder(env, target, source, *args, **kwargs):
         )
 
     r = __asciidoc_bld(env, target, source, *args, **kwargs)
+
+    partitioned_r = _partition_targets(r, source)
+
+    # add extra dependencies, like conf files
+    for t, s in izip(partitioned_r, source):
+        _ad_add_extra_depends(env, t[0], [s])
 
     return r
 
@@ -230,6 +276,9 @@ def a2x_builder(env, target, source, *args, **kwargs):
             break
 
         t = t[0]
+
+        # add extra dependencies, like conf files
+        _a2x_add_extra_depends(env, t, [s])
 
         fbasename = SCons.Util.splitext(t.path)[0]
         fpath     = os.path.dirname(str(s))
