@@ -97,6 +97,61 @@ __ad_src_scanner = SCons.Scanner.Scanner(
     recursive=True
 )
 
+def _gen_ad_suffix(env, sources):
+    """Generate the AsciiDoc target suffix depending on the chosen backend."""
+
+    ad_backend = env['AD_BACKEND']
+
+    return _ad_backend_suffix_map[ad_backend]
+
+# needed in case you want to do something with the target
+# TODO: try out docbook, htmlhelp and manpage
+def _gen_a2x_suffix(env, sources):
+    """Generate the a2x target suffix depending on the chosen format."""
+
+    a2x_format = env['A2X_FORMAT']
+
+    return _a2x_backend_suffix_map[a2x_format]
+
+def get_ad_conf_list(target, source, env, for_signature):
+    return ' '.join('-f ' + c for c in env['AD_CONFFILES'])
+
+def get_a2x_conf(target, source, env, for_signature):
+    if env['A2X_CONFFILE']:
+        return "--conf-file=" + env['A2X_CONFFILE']
+    return ''
+
+_ad_action = '${AD_ASCIIDOC} \
+        -b ${AD_BACKEND} \
+        -d ${AD_DOCTYPE} \
+        ${AD_GET_CONF} \
+        ${AD_FLAGS} \
+        -o ${TARGET} ${SOURCE}'
+
+__asciidoc_bld = SCons.Builder.Builder(
+    action = _ad_action,
+    suffix = _gen_ad_suffix,
+    single_source = True,
+    source_scanner = __ad_src_scanner,
+)
+
+_a2x_action = "${A2X_A2X} \
+        -f ${A2X_FORMAT} \
+        -d ${A2X_DOCTYPE} \
+        ${A2X_GET_CONF} \
+        $( ${A2X_KEEPARTIFACTS and '-k' or ''} $)\
+        ${A2X_FLAGS} \
+        -D ${TARGET.dir} \
+        ${SOURCE}"
+
+__a2x_bld = SCons.Builder.Builder(
+    action = _a2x_action,
+    suffix = _gen_a2x_suffix,
+    single_source = True,
+    source_scanner = __ad_src_scanner,
+    target_factory = SCons.Script.Entry,
+)
+
 # TODO: finish these functions
 #
 # NOTE: AsciiDoc does not seem to output extra targets.  In the case where JS
@@ -166,61 +221,6 @@ def _a2x_add_extra_depends(env, target, source):
     for c in conf_files:
         if os.path.isfile(c):
             env.Depends(target, c)
-
-def _gen_ad_suffix(env, sources):
-    """Generate the AsciiDoc target suffix depending on the chosen backend."""
-
-    ad_backend = env['AD_BACKEND']
-
-    return _ad_backend_suffix_map[ad_backend]
-
-# needed in case you want to do something with the target
-# TODO: try out docbook, htmlhelp and manpage
-def _gen_a2x_suffix(env, sources):
-    """Generate the a2x target suffix depending on the chosen format."""
-
-    a2x_format = env['A2X_FORMAT']
-
-    return _a2x_backend_suffix_map[a2x_format]
-
-def get_ad_conf_list(target, source, env, for_signature):
-    return ' '.join('-f ' + c for c in env['AD_CONFFILES'])
-
-def get_a2x_conf(target, source, env, for_signature):
-    if env['A2X_CONFFILE']:
-        return "--conf-file=" + env['A2X_CONFFILE']
-    return ''
-
-_ad_action = '${AD_ASCIIDOC} \
-        -b ${AD_BACKEND} \
-        -d ${AD_DOCTYPE} \
-        ${AD_GET_CONF} \
-        ${AD_FLAGS} \
-        -o ${TARGET} ${SOURCE}'
-
-__asciidoc_bld = SCons.Builder.Builder(
-    action = _ad_action,
-    suffix = _gen_ad_suffix,
-    single_source = True,
-    source_scanner = __ad_src_scanner,
-)
-
-_a2x_action = "${A2X_A2X} \
-        -f ${A2X_FORMAT} \
-        -d ${A2X_DOCTYPE} \
-        ${A2X_GET_CONF} \
-        $( ${A2X_KEEPARTIFACTS and '-k' or ''} $)\
-        ${A2X_FLAGS} \
-        -D ${TARGET.dir} \
-        ${SOURCE}"
-
-__a2x_bld = SCons.Builder.Builder(
-    action = _a2x_action,
-    suffix = _gen_a2x_suffix,
-    single_source = True,
-    source_scanner = __ad_src_scanner,
-    target_factory = SCons.Script.Entry,
-)
 
 def asciidoc_builder(env, target, source, *args, **kwargs):
 
