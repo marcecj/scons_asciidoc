@@ -73,7 +73,7 @@ def _ad_scanner(node, env, path):
     if not os.path.isfile(node.path):
         return []
 
-    reg = re.compile('include::(.+)\[\]')
+    reg = re.compile('include:{1,2}(.+?)\[')
     res = reg.findall(node.get_contents())
 
     return res
