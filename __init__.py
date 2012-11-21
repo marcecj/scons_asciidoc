@@ -381,17 +381,17 @@ def generate(env):
     # But it seems as if that is not supported by SCons.
 
     try:
-        a2x_proc = subp.Popen(['a2x', '--version'], stdout=subp.PIPE)
-        a2x_ver = a2x_proc.communicate()[0].split()[-1]
-    except OSError:
-        a2x_ver = ''
-
-    # get the a2x version
-    try:
         ad_proc = subp.Popen(['asciidoc', '--version'], stdout=subp.PIPE)
         ad_ver  = ad_proc.communicate()[0].split()[-1]
     except OSError:
         ad_ver = ''
+
+    # get the a2x version
+    try:
+        a2x_proc = subp.Popen(['a2x', '--version'], stdout=subp.PIPE)
+        a2x_ver = a2x_proc.communicate()[0].split()[-1]
+    except OSError:
+        a2x_ver = ''
 
     # set asciidoc defaults; should match the asciidoc(1) defaults
     env['AD_ASCIIDOC']  = _get_prog_path(env, 'AD_ASCIIDOC', 'asciidoc')
