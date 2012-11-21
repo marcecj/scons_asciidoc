@@ -6,7 +6,7 @@ Marc Joliet <marcec@gmx.de>
 This is an SCons extension (more precisely, a tool) for compiling AsciiDoc
 documents to various formats using the `asciidoc` and `a2x` programs.  It adds
 two appropriate builders, `AsciiDoc` and `A2X`, to your env.  Their behaviour
-can be modified using corresponding environment variables (see "Usage" below).
+can be modified using corresponding construction variables (see "Usage" below).
 
 Please keep in mind that this SCons tool is still under (heavy) development,
 lacks a test suite, and does not handle all cases (yet).
@@ -38,7 +38,7 @@ To compile an AsciiDoc source file, use the builder AsciiDoc(), like so:
     docs = env.AsciiDoc(["readme.txt"])
 
 To manipulate the behaviour of the builders, you can specify the following
-environment variables (construction variables for internal use are not listed
+construction variables (construction variables for internal use are not listed
 here):
 
 - `AD_ASCIIDOC`       -> the name of the `asciidoc` executable
