@@ -367,13 +367,23 @@ def generate(env):
     ad_ver  = ad_proc.communicate()[0].split()[-1]
 
     # set defaults; should match the asciidoc/a2x defaults
-    env['AD_ASCIIDOC']  = 'asciidoc'
+
+    try:
+        env['AD_ASCIIDOC']
+    except KeyError:
+        env['AD_ASCIIDOC'] = 'asciidoc'
+
     env['AD_BACKEND']   = 'html'
     env['AD_DOCTYPE']   = 'article'
     env['AD_CONFFILES'] = []
     env['AD_GET_CONF']  = get_ad_conf_list
     env['AD_VERSION']   = ad_ver
-    env['A2X_A2X']      = 'a2x'
+
+    try:
+        env['A2X_A2X']
+    except KeyError:
+        env['A2X_A2X'] = 'a2x'
+
     env['A2X_FORMAT']   = 'pdf'
     env['A2X_DOCTYPE']  = 'article'
     env['A2X_CONFFILE'] = ''

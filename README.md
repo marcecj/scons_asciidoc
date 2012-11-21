@@ -56,7 +56,14 @@ here):
   should normally not need to be modified, but *can* be, "just in case."
 
 Furthermore, the tool adds the construction variables `AD_VERSION` and
-`A2X_VERSION`.
+`A2X_VERSION`.  For this to work in the case of non-standard executable
+locations, you can set the `AD_ASCIIDOC` and `A2X_A2X` construction variables at
+environment initialisation time, e.g.:
+
+    env = Environment(AD_ASCIIDOC='/path/to/asciidoc'
+                      tools = ['default', 'asciidoc'])
+
+This is especially handy in combination with the SCons ARGUMENTS dictionary.
 
 ## Related Software
 
