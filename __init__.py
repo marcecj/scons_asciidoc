@@ -111,13 +111,9 @@ __ad_src_scanner = SCons.Scanner.Scanner(
 # - image directories when the data-uri option is set:
 #     - iconsdir
 #     - imagesdir
-# - AsciiDoc configuration files in the source directory:
-#     - asciidoc.conf
-#     - <backend>.conf and <backend>-<doctype>.conf
-#     - <docfile>.conf and <docfile>-<backend>.conf
-#     -> add each conf file to the sources if it exists, or just make the
-#     target depend on it
-# - other relevant options, like --conf-file, and other implicit files used
+# - find other implicit files used, i.e., from --theme and --filter (asciidoc)
+# and from --backend, --icons-dir, --resource, --resource-manifest,
+# --stylesheet, and --xsl-file (a2x); see the respective man pages
 #
 # (again, see http://www.methods.co.nz/asciidoc/userguide.html#X27 for more)
 def _ad_add_extra_depends(env, target, source):
