@@ -329,6 +329,22 @@ def a2x_builder(env, target, source, *args, **kwargs):
 
     return r
 
+def _get_prog_path(env, key, name):
+    """Try to find the executable 'name' and store its location in env[key]."""
+
+    # check if the user already specified the location
+    try:
+        return env[key]
+    except KeyError:
+        pass
+
+    # asciidoc and a2x may be installed with a '.py' suffix
+    prog_path = env.WhereIs(name) or env.WhereIs(name+'.py')
+
+    # Explicitly do not raise an error here. If asciidoc is not installed, then
+    # the build system using this tool should be able to deal with it.
+    return prog_path
+
 def generate(env):
 
     # put the builders in the environment
@@ -368,22 +384,14 @@ def generate(env):
 
     # set defaults; should match the asciidoc/a2x defaults
 
-    try:
-        env['AD_ASCIIDOC']
-    except KeyError:
-        env['AD_ASCIIDOC'] = 'asciidoc'
-
+    env['AD_ASCIIDOC']  = _get_prog_path(env, 'AD_ASCIIDOC', 'asciidoc')
     env['AD_BACKEND']   = 'html'
     env['AD_DOCTYPE']   = 'article'
     env['AD_CONFFILES'] = []
     env['AD_GET_CONF']  = get_ad_conf_list
     env['AD_VERSION']   = ad_ver
 
-    try:
-        env['A2X_A2X']
-    except KeyError:
-        env['A2X_A2X'] = 'a2x'
-
+    env['A2X_A2X']      = _get_prog_path(env, 'A2X_A2X', 'a2x')
     env['A2X_FORMAT']   = 'pdf'
     env['A2X_DOCTYPE']  = 'article'
     env['A2X_CONFFILE'] = ''
