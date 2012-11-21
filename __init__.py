@@ -208,7 +208,8 @@ _a2x_action = '${A2X_A2X} \
         -d ${A2X_DOCTYPE} \
         ${A2X_GET_CONF} \
         ${A2X_FLAGS} \
-        ${SOURCE}'
+        -D ${TARGET.dir} \
+        ${SOURCE}"
 
 __a2x_bld = SCons.Builder.Builder(
     action = _a2x_action,
@@ -301,7 +302,7 @@ def a2x_builder(env, target, source, *args, **kwargs):
         _a2x_add_extra_depends(env, t, [s])
 
         fbasename = SCons.Util.splitext(t.path)[0]
-        fpath     = os.path.dirname(str(s))
+        fpath     = os.path.dirname(str(t))
 
         if keep_temp:
             xml_temp = fbasename + '.xml'
