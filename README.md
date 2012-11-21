@@ -5,11 +5,11 @@ Marc Joliet <marcec@gmx.de>
 
 This is an SCons tool for compiling AsciiDoc documents to various formats using
 the `asciidoc` and `a2x` programs.  It adds two appropriate builders, `AsciiDoc`
-and `A2X`, to your env.  Their behaviour can be modified using various
-construction variables (see "Usage" below).
+and `A2X`, to your construction environment.  Their behaviour can be modified
+using various construction variables (see "Usage" below).
 
-Please keep in mind that this SCons tool is still under (heavy) development,
-lacks a test suite, and does not handle all cases (yet).
+Please keep in mind that this SCons tool is still under (heavy) development and
+lacks a test suite.  Still, it already takes care of a lot of things.
 
 ## Installation
 
