@@ -1,6 +1,7 @@
 import SCons.Builder
 import SCons.Errors
 import SCons.Scanner
+import SCons.Script
 import SCons.Util
 import os
 from itertools import izip
@@ -217,6 +218,7 @@ __a2x_bld = SCons.Builder.Builder(
     suffix = _gen_a2x_suffix,
     single_source = True,
     source_scanner = __ad_src_scanner,
+    target_factory = SCons.Script.Entry,
 )
 
 def asciidoc_builder(env, target, source, *args, **kwargs):
