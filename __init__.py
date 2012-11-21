@@ -73,12 +73,27 @@ def _ad_scanner(node, env, path):
     if not os.path.isfile(node.path):
         return []
 
-    reg = re.compile('include:{1,2}(.+?)\[')
-    res = reg.findall(node.get_contents())
+    txt_reg = re.compile('include:{1,2}(.+?)\[')
+    txt_files = txt_reg.findall(node.get_contents())
 
-    return res
+    img_reg = re.compile('image:{1,2}(.+?)\[')
+    img_files = img_reg.findall(node.get_contents())
 
-__ad_src_scanner = SCons.Scanner.Scanner(_ad_scanner, recursive=True)
+    return txt_files + img_files
+
+def _ad_scanner_check(node, env):
+
+    # Only scan asciidoc source files (put another way, *do not* scan things
+    # like image files)
+    if node.path.endswith('.txt'):
+        return True
+    return False
+
+__ad_src_scanner = SCons.Scanner.Scanner(
+    _ad_scanner,
+    scan_check = _ad_scanner_check,
+    recursive=True
+)
 
 # TODO: finish these functions
 #
@@ -96,7 +111,6 @@ __ad_src_scanner = SCons.Scanner.Scanner(_ad_scanner, recursive=True)
 # - image directories when the data-uri option is set:
 #     - iconsdir
 #     - imagesdir
-# - images included with the image:[] macro
 # - AsciiDoc configuration files in the source directory:
 #     - asciidoc.conf
 #     - <backend>.conf and <backend>-<doctype>.conf
