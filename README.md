@@ -99,6 +99,16 @@ A generic way to handle this might be to do something like following:
 
     env = Environment(tools = ['default', 'asciidoc'], **extra_kwargs)
 
+One more important thing to keep in mind: when asciidoc or a2x are not
+installed, the tool does *not* raise an error.  Instead, it sets the
+`AD_ASCIIDOC` and/or `A2X_A2X` variables to `None` and the version variables to
+empty strings.  The reason for this is that a program should be able to compile
+even if its documentation is not.  Put another way, it should not be a "hard"
+error when the documentation cannot be built; the build system should be able to
+work around that.  A user trying to compile and install a piece of software
+should not be hindered by the fact that he does not have documentation tools
+installed (which can be hard or impossible on non-Unix systems.)
+
 ## Related Software
 
 You could combine the `AsciiDoc()` builder with the
