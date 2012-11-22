@@ -78,7 +78,7 @@ def _ad_scanner(node, env, path):
     if not os.path.isfile(node.path):
         return []
 
-    txt_reg = re.compile('include:{1,2}(.+?)\[')
+    txt_reg = re.compile('include1{0,1}:{1,2}(.+?)\[')
     txt_files = txt_reg.findall(node.get_contents())
 
     img_reg = re.compile('image:{1,2}(.+?)\[')
