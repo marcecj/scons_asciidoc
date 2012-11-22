@@ -54,11 +54,13 @@ construction variables (variables for internal use are not listed here):
 - `AD_BACKEND`   -> the backend passed via the `-b` option
 - `AD_DOCTYPE`   -> the document type passed via the `-d` option
 - `AD_CONFFILES` -> a list of configuration files passed via the `-f` option
+- `AD_ATTRIBUTES` -> a list of attributes passed via the `-a` option
 - `A2X_A2X`      -> the name of the `a2x` executable
 - `A2X_FLAGS`    -> miscellaneous flags passed to `a2x`
 - `A2X_FORMAT`   -> the format passed via the `-f` option
 - `A2X_DOCTYPE`  -> the document type passed via the `-d` option
 - `A2X_CONFFILE` -> a configuration file passed via the `--conf-file` option
+- `A2X_ATTRIBUTES` -> a list of attributes passed via the `-a` option
 
 Finally, there is also a variable `A2X_KEEPARTIFACTS`, which defines whether
 build artifacts should be deleted by `a2x` or not.  This variable sets the `a2x`

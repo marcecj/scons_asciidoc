@@ -123,10 +123,17 @@ def _gen_a2x_conf_str(target, source, env, for_signature):
         return "--conf-file=" + env['A2X_CONFFILE']
     return ''
 
+def _gen_ad_attr_str(target, source, env, for_signature):
+    return ' '.join('-a "'+a+'"' for a in env['AD_ATTRIBUTES'])
+
+def _gen_a2x_attr_str(target, source, env, for_signature):
+    return ' '.join('-a "'+a+'"' for a in env['A2X_ATTRIBUTES'])
+
 _ad_action = '${AD_ASCIIDOC} \
         -b ${AD_BACKEND} \
         -d ${AD_DOCTYPE} \
         ${AD_GET_CONF} \
+        ${AD_GET_ATTR} \
         ${AD_FLAGS} \
         -o ${TARGET} ${SOURCE}'
 
@@ -141,6 +148,7 @@ _a2x_action = "${A2X_A2X} \
         -f ${A2X_FORMAT} \
         -d ${A2X_DOCTYPE} \
         ${A2X_GET_CONF} \
+        ${A2X_GET_ATTR} \
         $( ${A2X_KEEPARTIFACTS and '-k' or ''} $)\
         ${A2X_FLAGS} \
         -D ${TARGET.dir} \
@@ -399,6 +407,8 @@ def generate(env):
     env['AD_DOCTYPE']   = 'article'
     env['AD_CONFFILES'] = []
     env['AD_GET_CONF']  = _gen_ad_conf_str
+    env['AD_ATTRIBUTES'] = []
+    env['AD_GET_ATTR']  = _gen_ad_attr_str
     env['AD_VERSION']   = ad_ver
 
     # set a2x defaults; should match the a2x(1) defaults
@@ -407,6 +417,8 @@ def generate(env):
     env['A2X_DOCTYPE']  = 'article'
     env['A2X_CONFFILE'] = ''
     env['A2X_GET_CONF'] = _gen_a2x_conf_str
+    env['A2X_ATTRIBUTES'] = []
+    env['A2X_GET_ATTR'] = _gen_a2x_attr_str
     env['A2X_KEEPARTIFACTS'] = False
     env['A2X_VERSION']  = a2x_ver
 
