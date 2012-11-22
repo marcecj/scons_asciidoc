@@ -406,8 +406,8 @@ def generate(env):
     env['A2X_FORMAT']   = 'pdf'
     env['A2X_DOCTYPE']  = 'article'
     env['A2X_CONFFILE'] = ''
-    env['A2X_KEEPARTIFACTS'] = False
     env['A2X_GET_CONF'] = _gen_a2x_conf_str
+    env['A2X_KEEPARTIFACTS'] = False
     env['A2X_VERSION']  = a2x_ver
 
 def exists(env):
