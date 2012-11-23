@@ -61,6 +61,8 @@ construction variables (variables for internal use are not listed here):
 - `A2X_DOCTYPE`  -> the document type passed via the `-d` option
 - `A2X_CONFFILE` -> a configuration file passed via the `--conf-file` option
 - `A2X_ATTRIBUTES` -> a list of attributes passed via the `-a` option
+- `A2X_RESOURCES` -> a list of resource files passed via the `-r` option
+- `A2X_RESOURCEMANIFEST` -> a resource manifest file passed via the `-m` option
 
 Finally, there is also a variable `A2X_KEEPARTIFACTS`, which defines whether
 build artifacts should be deleted by `a2x` or not.  This variable sets the `a2x`

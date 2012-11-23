@@ -129,6 +129,15 @@ def _gen_ad_attr_str(target, source, env, for_signature):
 def _gen_a2x_attr_str(target, source, env, for_signature):
     return ' '.join('-a "'+a+'"' for a in env['A2X_ATTRIBUTES'])
 
+def _gen_a2x_res_str(target, source, env, for_signature):
+    return ' '.join('-r "'+r+'"' for r in env['A2X_RESOURCES'])
+
+def _gen_a2x_resman_str(target, source, env, for_signature):
+    if env['A2X_RESOURCEMANIFEST']:
+        return '-m ' + env['A2X_RESOURCEMANIFEST']
+    else:
+        return ''
+
 _ad_action = '${AD_ASCIIDOC} \
         -b ${AD_BACKEND} \
         -d ${AD_DOCTYPE} \
@@ -149,6 +158,8 @@ _a2x_action = "${A2X_A2X} \
         -d ${A2X_DOCTYPE} \
         ${A2X_GET_CONF} \
         ${A2X_GET_ATTR} \
+        ${A2X_GET_RES} \
+        ${A2X_GET_RESMAN} \
         $( ${A2X_KEEPARTIFACTS and '-k' or ''} $)\
         ${A2X_FLAGS} \
         -D ${TARGET.dir} \
@@ -181,8 +192,8 @@ __a2x_bld = SCons.Builder.Builder(
 # - files referenced in sys::[] macros; basically: expand the glob, split() it
 # and check if any of the substrings are files (or directories)
 # - find other implicit files used, i.e., from --theme and --filter (asciidoc)
-# and from --icons-dir, --resource, --resource-manifest, --stylesheet, and
-# --xsl-file (a2x); see the respective man pages
+# and from --icons-dir, --stylesheet, and --xsl-file (a2x); see the respective
+# man pages
 #
 # (again, see http://www.methods.co.nz/asciidoc/userguide.html#X27 for more)
 #
@@ -212,10 +223,45 @@ def _ad_add_extra_depends(env, target, source):
         if os.path.isfile(c):
             env.Depends(target, c)
 
+def _get_res_entry(line, dir):
+    """Return an A2X resource file/directory found in a resource spec.
+
+    See the a2x man page for details on the format.
+    """
+
+    line = line.split('=')
+    res = line[0]
+    # resource files are also searched relatively to the source directory, so if
+    # a resource spec is specified like that, we also need to check relatively
+    # to the source directory
+    alt_res = os.sep.join([dir, res])
+
+    res_list = []
+    if len(line) == 2:
+        # either
+        #   <resource_file>=<destination_file>
+        # or
+        #   .<ext>=<mimetype>
+        if res.startswith('.'):
+            pass
+        elif os.path.isfile(res):
+            res_list.append(res)
+        elif os.path.isfile(alt_res):
+            res_list.append(alt_res)
+    elif len(line) == 1:
+        # either a file or directory
+        if os.path.exists(res):
+            res_list.append(res)
+        elif os.path.exists(alt_res):
+            res_list.append(alt_res)
+
+    return res_list
+
 def _a2x_add_extra_depends(env, target, source):
     """Add extra dependencies to an a2x target."""
 
     doctype = env['A2X_DOCTYPE']
+    resman  = env['A2X_RESOURCEMANIFEST']
 
     src = str(source[0])
     s = SCons.Util.splitext(os.path.basename(src))[0]
@@ -237,6 +283,26 @@ def _a2x_add_extra_depends(env, target, source):
     for c in conf_files:
         if os.path.isfile(c):
             env.Depends(target, c)
+
+    # check a resource manifest file for file/dir names
+
+    # if a resource manifest is specified, search for directories and files in
+    # each line, and add them to the dependency list
+    if resman:
+        with open(resman) as f:
+            for line in f:
+                resource = _get_res_entry(line, d)
+                if resource:
+                    env.Depends(target, resource)
+
+    # add resource files to the dependency list
+
+    # for each resource specified, search for directories and files, and add
+    # them to the dependency list
+    for res in env['A2X_RESOURCES']:
+        resource = _get_res_entry(res, d)
+        if resource:
+            env.Depends(target, resource)
 
 def asciidoc_builder(env, target, source, *args, **kwargs):
     """An asciidoc pseudo-builder."""
@@ -425,6 +491,10 @@ def generate(env):
     env['A2X_GET_CONF'] = _gen_a2x_conf_str
     env['A2X_ATTRIBUTES'] = []
     env['A2X_GET_ATTR'] = _gen_a2x_attr_str
+    env['A2X_RESOURCES'] = []
+    env['A2X_GET_RES']  = _gen_a2x_res_str
+    env['A2X_RESOURCEMANIFEST'] = ''
+    env['A2X_GET_RESMAN'] = _gen_a2x_resman_str
     env['A2X_KEEPARTIFACTS'] = False
     env['A2X_VERSION']  = a2x_ver
 
