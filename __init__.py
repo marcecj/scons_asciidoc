@@ -178,11 +178,15 @@ __a2x_bld = SCons.Builder.Builder(
 # - image directories when the data-uri option is set:
 #     - iconsdir
 #     - imagesdir
+# - files referenced in sys::[] macros; basically: expand the glob, split() it
+# and check if any of the substrings are files (or directories)
 # - find other implicit files used, i.e., from --theme and --filter (asciidoc)
-# and from --backend, --icons-dir, --resource, --resource-manifest,
-# --stylesheet, and --xsl-file (a2x); see the respective man pages
+# and from --icons-dir, --resource, --resource-manifest, --stylesheet, and
+# --xsl-file (a2x); see the respective man pages
 #
 # (again, see http://www.methods.co.nz/asciidoc/userguide.html#X27 for more)
+#
+# Also, see if it is possible to deal with ifdef:[].
 def _ad_add_extra_depends(env, target, source):
     """Add extra dependencies to an asciidoc target."""
 
@@ -216,6 +220,8 @@ def _a2x_add_extra_depends(env, target, source):
     src = str(source[0])
     s = SCons.Util.splitext(os.path.basename(src))[0]
     d = os.path.dirname(src)
+
+    # check for various conf files
 
     conf_files = (
         "asciidoc.conf",
