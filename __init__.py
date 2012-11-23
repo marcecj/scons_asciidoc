@@ -500,7 +500,7 @@ def generate(env):
     env['A2X_GET_RES']  = _gen_a2x_res_str
     env['A2X_RESOURCEMANIFEST'] = ''
     env['A2X_GET_RESMAN'] = _gen_a2x_resman_str
-    env['A2X_KEEPARTIFACTS'] = False
+    env['A2X_KEEPARTIFACTS'] = True
     env['A2X_VERSION']  = a2x_ver
 
 def exists(env):
