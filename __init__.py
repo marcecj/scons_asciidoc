@@ -8,6 +8,35 @@ import subprocess as subp
 from itertools import izip
 
 # TODO: write tests
+# TODO: verify that ps format does not add additional targets
+# TODO: try out docbook, htmlhelp and manpage formats
+# FIXME: "dvi" and "ps" formats do not produce output, but raise no errors
+# FIXME: 'manpage' and 'epub' formats produce xsltproc failures
+# TODO: complete implicit dependency handling
+#
+# NOTE: AsciiDoc does not seem to output extra targets.  In the case where JS
+# and CSS is linked to the HTML file, it must be manually copied to the
+# appropriate location.  In this case, the files would be part of the source
+# code repository anyway, and the dependencies of the target file on them should
+# not matter.  Furthermore, they are irrelevant to the produced HTML, and even
+# when they are embedded, they reside in a central asciidoc configuration
+# directory in $HOME, /etc/ or /usr/local/etc/ (see
+# http://www.methods.co.nz/asciidoc/userguide.html#X27).  I believe that is
+# *outside* the scope of this AsciiDoc tool.
+#
+# Actual potential candidates for implicit dependencies:
+# - image directories when the data-uri option is set:
+#     - iconsdir
+#     - imagesdir
+# - files referenced in sys::[] macros; basically: expand the glob, split() it
+# and check if any of the substrings are files (or directories)
+# - find other implicit files used, i.e., from --theme and --filter (asciidoc)
+# and from --icons-dir, --stylesheet, and --xsl-file (a2x); see the respective
+# man pages
+#
+# (again, see http://www.methods.co.nz/asciidoc/userguide.html#X27 for more)
+#
+# Also, see if it is possible to deal with ifdef:[].
 
 _ad_valid_backends = frozenset((
     "docbook45",
@@ -173,31 +202,6 @@ __a2x_bld = SCons.Builder.Builder(
     target_factory = SCons.Script.Entry,
 )
 
-# TODO: finish these functions
-#
-# NOTE: AsciiDoc does not seem to output extra targets.  In the case where JS
-# and CSS is linked to the HTML file, it must be manually copied to the
-# appropriate location.  In this case, the files would be part of the source
-# code repository anyway, and the dependencies of the target file on them should
-# not matter.  Furthermore, they are irrelevant to the produced HTML, and even
-# when they are embedded, they reside in a central asciidoc configuration
-# directory in $HOME, /etc/ or /usr/local/etc/ (see
-# http://www.methods.co.nz/asciidoc/userguide.html#X27).  I believe that is
-# *outside* the scope of this AsciiDoc tool.
-#
-# Actual potential candidates to be emitted here:
-# - image directories when the data-uri option is set:
-#     - iconsdir
-#     - imagesdir
-# - files referenced in sys::[] macros; basically: expand the glob, split() it
-# and check if any of the substrings are files (or directories)
-# - find other implicit files used, i.e., from --theme and --filter (asciidoc)
-# and from --icons-dir, --stylesheet, and --xsl-file (a2x); see the respective
-# man pages
-#
-# (again, see http://www.methods.co.nz/asciidoc/userguide.html#X27 for more)
-#
-# Also, see if it is possible to deal with ifdef:[].
 def _ad_add_extra_depends(env, target, source):
     """Add extra dependencies to an asciidoc target."""
 
@@ -356,12 +360,7 @@ def a2x_builder(env, target, source, *args, **kwargs):
     r = __a2x_bld(env, target, source, *args, **kwargs)
 
     # make sure to clean up intermediary files when the target is cleaned
-    # TODO: the following formats do not add additional targets: pdf, ps, tex
-    # (I haven't verified ps, though)
-    # TODO: try out docbook, htmlhelp and manpage
-    # FIXME: the following formats do not produce final output, but do not raise
-    # any errors: "dvi", "ps"
-    # FIXME: 'manpage' and 'epub' produce xsltproc failures
+    # NOTE: the following formats do not produce artifacts: pdf, ps, tex
     for t, s in izip(r, source):
 
         # docbook is the only format with one target per source
