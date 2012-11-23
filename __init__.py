@@ -8,7 +8,6 @@ import subprocess as subp
 from itertools import izip
 
 # TODO: write tests
-# TODO: verify that ps format does not add additional targets
 # TODO: try out docbook, htmlhelp and manpage formats
 # FIXME: "dvi" and "ps" formats do not produce output, but raise no errors
 # FIXME: 'manpage' and 'epub' formats produce xsltproc failures
