@@ -332,6 +332,11 @@ def asciidoc_builder(env, target, source, *args, **kwargs):
 def a2x_builder(env, target, source, *args, **kwargs):
     """An a2x pseudo-builder."""
 
+    # handle overriding construction variables by cloning the environment and
+    # passing the unpacked keyword arguments; this is needed because this is a
+    # pseudo-builder
+    env = env.Clone(**kwargs)
+
     a2x_doctype = env['A2X_DOCTYPE']
     a2x_format  = env['A2X_FORMAT']
     a2x_flags   = env.Split(env['A2X_FLAGS'])
