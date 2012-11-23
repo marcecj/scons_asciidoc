@@ -504,6 +504,4 @@ def generate(env):
 
 def exists(env):
     # expect a2x to be there if asciidoc is
-    if not env.WhereIs("asciidoc"):
-        return None
-    return True
+    return _get_prog_path(env, 'AD_ASCIIDOC', 'asciidoc')
