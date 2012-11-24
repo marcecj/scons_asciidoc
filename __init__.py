@@ -132,12 +132,12 @@ def generate(env):
         a2x_ver = ''
 
     # set asciidoc defaults; should match the asciidoc(1) defaults
-    env['AD_ASCIIDOC']   = ad_asciidoc
-    env['AD_VERSION']    = ad_ver
-    env['AD_BACKEND']    = 'html'
-    env['AD_DOCTYPE']    = 'article'
-    env['AD_CONFFILES']  = []
-    env['AD_ATTRIBUTES'] = []
+    env['AD_ASCIIDOC']    = ad_asciidoc
+    env['AD_VERSION']     = ad_ver
+    env['AD_BACKEND']     = 'html'
+    env['AD_DOCTYPE']     = 'article'
+    env['AD_CONFFILES']   = []
+    env['AD_ATTRIBUTES']  = []
 
     # set a2x defaults; should match the a2x(1) defaults
     env['A2X_A2X']        = a2x_a2x

@@ -171,7 +171,7 @@ def asciidoc_builder(env, target, source, *args, **kwargs):
 
     if ad_doctype == 'book' and 'docbook' not in ad_backend:
         raise SCons.Errors.UserError(
-            "Doctype 'book' only supported by docbook backends"
+            "Doctype 'book' only supported by docbook backends."
         )
 
     r = builders.asciidoc_bld(env, target, source, *args, **kwargs)

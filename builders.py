@@ -11,7 +11,7 @@ import re
 # stuff common to both builders #
 #################################
 
-def ad_scanner(node, env, path):
+def ad_src_scanner_func(node, env, path):
     """Scans AsciiDoc files for implicit dependencies."""
 
     if not os.path.isfile(node.path):
@@ -25,7 +25,7 @@ def ad_scanner(node, env, path):
 
     return txt_files + img_files
 
-def ad_scanner_check(node, env):
+def ad_scan_check(node, env):
     """Check whether a node should be scanned."""
 
     # only scan asciidoc source files (put another way, *do not* scan things
@@ -35,9 +35,9 @@ def ad_scanner_check(node, env):
     return False
 
 ad_src_scanner = SCons.Scanner.Scanner(
-    ad_scanner,
-    scan_check = ad_scanner_check,
-    recursive=True
+    ad_src_scanner_func,
+    scan_check = ad_scan_check,
+    recursive = True
 )
 
 ########################
