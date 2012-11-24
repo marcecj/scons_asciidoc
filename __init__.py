@@ -463,21 +463,24 @@ def generate(env):
     # file (to implement a sort of lazy evaluation of the version variables).
     # But it seems as if that is not supported by SCons.
 
+    ad_asciidoc = _get_prog_path(env, 'AD_ASCIIDOC', 'asciidoc')
+    a2x_a2x     = _get_prog_path(env, 'A2X_A2X', 'a2x')
+
     try:
-        ad_proc = subp.Popen(['asciidoc', '--version'], stdout=subp.PIPE)
+        ad_proc = subp.Popen([ad_asciidoc, '--version'], stdout=subp.PIPE)
         ad_ver  = ad_proc.communicate()[0].split()[-1]
-    except OSError:
+    except (OSError, AttributeError):
         ad_ver = ''
 
     # get the a2x version
     try:
-        a2x_proc = subp.Popen(['a2x', '--version'], stdout=subp.PIPE)
+        a2x_proc = subp.Popen([a2x_a2x, '--version'], stdout=subp.PIPE)
         a2x_ver = a2x_proc.communicate()[0].split()[-1]
-    except OSError:
+    except (OSError, AttributeError):
         a2x_ver = ''
 
     # set asciidoc defaults; should match the asciidoc(1) defaults
-    env['AD_ASCIIDOC']  = _get_prog_path(env, 'AD_ASCIIDOC', 'asciidoc')
+    env['AD_ASCIIDOC']  = ad_asciidoc
     env['AD_BACKEND']   = 'html'
     env['AD_DOCTYPE']   = 'article'
     env['AD_CONFFILES'] = []
@@ -487,7 +490,7 @@ def generate(env):
     env['AD_VERSION']   = ad_ver
 
     # set a2x defaults; should match the a2x(1) defaults
-    env['A2X_A2X']      = _get_prog_path(env, 'A2X_A2X', 'a2x')
+    env['A2X_A2X']      = a2x_a2x
     env['A2X_FORMAT']   = 'pdf'
     env['A2X_DOCTYPE']  = 'article'
     env['A2X_CONFFILE'] = ''
