@@ -64,12 +64,12 @@ def gen_ad_suffix(env, sources):
     return ad_backend_suffix_map[ad_backend]
 
 ad_action = "${AD_ASCIIDOC} \
-        -b ${AD_BACKEND} \
-        -d ${AD_DOCTYPE} \
-        ${AD_GET_CONF} \
-        ${AD_GET_ATTR} \
-        ${AD_FLAGS} \
-        -o ${TARGET} ${SOURCE}"
+-b ${AD_BACKEND} \
+-d ${AD_DOCTYPE} \
+${AD_GET_CONF} \
+${AD_GET_ATTR} \
+${AD_FLAGS} \
+-o ${TARGET} ${SOURCE}"
 
 asciidoc_bld = SCons.Builder.Builder(
     action = ad_action,
@@ -107,16 +107,16 @@ def gen_a2x_suffix(env, sources):
     return a2x_backend_suffix_map[a2x_format]
 
 a2x_action = "${A2X_A2X} \
-        -f ${A2X_FORMAT} \
-        -d ${A2X_DOCTYPE} \
-        ${A2X_GET_CONF} \
-        ${A2X_GET_ATTR} \
-        ${A2X_GET_RES} \
-        ${A2X_GET_RESMAN} \
-        $( ${A2X_KEEPARTIFACTS and '-k' or ''} $)\
-        ${A2X_FLAGS} \
-        -D ${TARGET.dir} \
-        ${SOURCE}"
+-f ${A2X_FORMAT} \
+-d ${A2X_DOCTYPE} \
+${A2X_GET_CONF} \
+${A2X_GET_ATTR} \
+${A2X_GET_RES} \
+${A2X_GET_RESMAN} \
+$( ${A2X_KEEPARTIFACTS and '-k' or ''} $)\
+${A2X_FLAGS} \
+-D ${TARGET.dir} \
+${SOURCE}"
 
 a2x_bld = SCons.Builder.Builder(
     action = a2x_action,
