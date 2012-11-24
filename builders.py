@@ -17,11 +17,13 @@ def ad_src_scanner_func(node, env, path):
     if not os.path.isfile(node.path):
         return []
 
+    node_contents = node.get_contents()
+
     txt_reg = re.compile('include1{0,1}:{1,2}(.+?)\[')
-    txt_files = txt_reg.findall(node.get_contents())
+    txt_files = txt_reg.findall(node_contents)
 
     img_reg = re.compile('image:{1,2}(.+?)\[')
-    img_files = img_reg.findall(node.get_contents())
+    img_files = img_reg.findall(node_contents)
 
     return txt_files + img_files
 
