@@ -160,6 +160,11 @@ def a2x_add_extra_deps(env, target, source):
 def asciidoc_builder(env, target, source, *args, **kwargs):
     """An asciidoc pseudo-builder."""
 
+    # handle overriding construction variables by cloning the environment and
+    # passing the unpacked keyword arguments; this is needed because this is a
+    # pseudo-builder
+    env = env.Clone(**kwargs)
+
     ad_backend = env['AD_BACKEND']
     ad_doctype = env['AD_DOCTYPE']
 
