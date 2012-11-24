@@ -36,6 +36,7 @@ def ad_scan_check(node, env):
 
 ad_src_scanner = SCons.Scanner.Scanner(
     ad_src_scanner_func,
+    name = "asciidoc_scanner",
     scan_check = ad_scan_check,
     recursive = True
 )
