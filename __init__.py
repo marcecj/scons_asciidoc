@@ -5,6 +5,9 @@ the `asciidoc` and `a2x` programs using two builders, `AsciiDoc` and `A2X`, to
 the construction environment.
 """
 
+# support Python 2.5
+from __future__ import with_statement
+
 # TODO: write tests
 # TODO: try out docbook, htmlhelp and manpage formats
 # FIXME: 'manpage' and 'epub' formats produce xsltproc failures

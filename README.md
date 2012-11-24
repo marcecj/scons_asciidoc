@@ -15,7 +15,7 @@ lacks a test suite.  Still, it already takes care of a lot of things.
 
 The SCons AsciiDoc tool depends on the obvious:
 
-- Python (2.4 or newer)
+- Python (2.5 or newer)
 - SCons
 - AsciiDoc (with all its dependencies, depending on what output you want)
 
