@@ -121,14 +121,14 @@ def generate(env):
     try:
         ad_proc = subp.Popen([ad_asciidoc, '--version'], stdout=subp.PIPE)
         ad_ver  = ad_proc.communicate()[0].split()[-1]
-    except (OSError, AttributeError):
+    except:
         ad_ver = ''
 
     # get the a2x version
     try:
         a2x_proc = subp.Popen([a2x_a2x, '--version'], stdout=subp.PIPE)
         a2x_ver = a2x_proc.communicate()[0].split()[-1]
-    except (OSError, AttributeError):
+    except:
         a2x_ver = ''
 
     # set asciidoc defaults; should match the asciidoc(1) defaults
