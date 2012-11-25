@@ -76,6 +76,7 @@ ${AD_FLAGS} \
 
 asciidoc_bld = SCons.Builder.Builder(
     action = ad_action,
+    src_suffix = '.txt',
     suffix = gen_ad_suffix,
     single_source = True,
     source_scanner = ad_src_scanner,
@@ -123,6 +124,7 @@ ${SOURCE}"
 
 a2x_bld = SCons.Builder.Builder(
     action = a2x_action,
+    src_suffix = '.txt',
     suffix = gen_a2x_suffix,
     single_source = True,
     source_scanner = ad_src_scanner,
