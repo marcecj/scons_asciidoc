@@ -7,6 +7,7 @@ the construction environment.
 
 # support Python 2.5
 from __future__ import with_statement
+import SCons.Util
 
 # TODO: write tests
 # TODO: try out docbook, htmlhelp and manpage formats
@@ -111,32 +112,36 @@ def generate(env):
     except:
         a2x_ver = ''
 
-    # set asciidoc defaults; should match the asciidoc(1) defaults
-    env['AD_ASCIIDOC']    = ad_asciidoc
-    env['AD_VERSION']     = ad_ver
-    env['AD_BACKEND']     = 'html'
-    env['AD_DOCTYPE']     = 'article'
-    env['AD_CONFFILES']   = []
-    env['AD_ATTRIBUTES']  = []
+    env.SetDefault(
+        # set asciidoc defaults; should match the asciidoc(1) defaults
+        AD_ASCIIDOC    = ad_asciidoc,
+        AD_VERSION     = ad_ver,
+        AD_BACKEND     = 'html',
+        AD_DOCTYPE     = 'article',
+        AD_CONFFILES   = SCons.Util.CLVar(''),
+        AD_ATTRIBUTES  = SCons.Util.CLVar(''),
+        AD_FLAGS       = SCons.Util.CLVar(''),
 
-    # set a2x defaults; should match the a2x(1) defaults
-    env['A2X_A2X']        = a2x_a2x
-    env['A2X_VERSION']    = a2x_ver
-    env['A2X_FORMAT']     = 'pdf'
-    env['A2X_DOCTYPE']    = 'article'
-    env['A2X_CONFFILE']   = ''
-    env['A2X_ATTRIBUTES'] = []
-    env['A2X_RESOURCES']  = []
-    env['A2X_RESOURCEMANIFEST'] = ''
-    env['A2X_KEEPARTIFACTS']    = True
+        # set a2x defaults; should match the a2x(1) defaults
+        A2X_A2X        = a2x_a2x,
+        A2X_VERSION    = a2x_ver,
+        A2X_FORMAT     = 'pdf',
+        A2X_DOCTYPE    = 'article',
+        A2X_CONFFILE   = '',
+        A2X_ATTRIBUTES = SCons.Util.CLVar(''),
+        A2X_RESOURCES  = SCons.Util.CLVar(''),
+        A2X_RESOURCEMANIFEST = '',
+        A2X_KEEPARTIFACTS    = True,
+        A2X_FLAGS      = SCons.Util.CLVar(''),
 
-    # variables used to generate the build signature
-    env['AD_GET_CONF']    = _gen_ad_conf_str
-    env['AD_GET_ATTR']    = _gen_ad_attr_str
-    env['A2X_GET_CONF']   = _gen_a2x_conf_str
-    env['A2X_GET_ATTR']   = _gen_a2x_attr_str
-    env['A2X_GET_RES']    = _gen_a2x_res_str
-    env['A2X_GET_RESMAN'] = _gen_a2x_resman_str
+        # variables used to generate the build signature
+        AD_GET_CONF    = _gen_ad_conf_str,
+        AD_GET_ATTR    = _gen_ad_attr_str,
+        A2X_GET_CONF   = _gen_a2x_conf_str,
+        A2X_GET_ATTR   = _gen_a2x_attr_str,
+        A2X_GET_RES    = _gen_a2x_res_str,
+        A2X_GET_RESMAN = _gen_a2x_resman_str,
+    )
 
 def exists(env):
     # expect a2x to be there if asciidoc is
