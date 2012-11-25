@@ -109,8 +109,9 @@ def get_res_entry(line, dir):
 def a2x_add_extra_deps(env, target, source):
     """Add extra dependencies to an a2x target."""
 
-    doctype = env['A2X_DOCTYPE']
-    resman  = env['A2X_RESOURCEMANIFEST']
+    doctype   = env['A2X_DOCTYPE']
+    resman    = env['A2X_RESOURCEMANIFEST']
+    a2x_flags = env.Split(env['A2X_FLAGS'])
 
     src = str(source[0])
     s = SCons.Util.splitext(os.path.basename(src))[0]
@@ -152,6 +153,18 @@ def a2x_add_extra_deps(env, target, source):
         resource = get_res_entry(res, d)
         if resource:
             env.Depends(target, resource)
+
+    # look for files passed in A2X_FLAGS and add them to the dependency list
+    for flag in a2x_flags:
+
+        # handle case "--option=[sub-option=]file"
+        flag = flag.split('=')
+
+        for f in flag:
+            # strip space and quotes
+            f = f.strip(" \"'")
+            if os.path.exists(f):
+                env.Depends(target, f)
 
 ##############################
 # define the pseudo-builders #

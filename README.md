@@ -69,6 +69,13 @@ build artifacts should be deleted by `a2x` or not.  This variable sets the `a2x`
 `-k` option when true (the default).  This should normally not need to be
 modified, but *can* be, "just in case".
 
+Note that due to the complexity of some of the possible `a2x` options, the
+AsciiDoc tool looks for files and directories in the options passed via
+`A2X_FLAGS` and adds them to the dependency list.  This is done for handling
+options like `--dblatex-opts "-s path/to/style/file.sty"` (or the long form
+`--dblatex-opts="--texstyle=path/to/style/file.sty"`) and avoids the need for
+adding construction variables for every such option.
+
 To override these variables for individual source files, SCons lets you pass
 construction variables as keyword arguments to builders.  For example, to build
 one document as a website and another as a manpage, you can do the following:
