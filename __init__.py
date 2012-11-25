@@ -93,33 +93,11 @@ def generate(env):
     env['BUILDERS']['AsciiDoc'] = pseudo_builders.asciidoc_builder
     env['BUILDERS']['A2X']      = pseudo_builders.a2x_builder
 
-    # get the asciidoc version
-    #
-    # NOTE: I originally wanted to do something like this:
-    #
-    #     class get_prog_version(object):
-    #         def __init__(self, progvar):
-    #             self.progvar = progvar
-    #
-    #         def __call__(self, target, source, env, for_signature):
-    #             prog_exe = env[self.progvar]
-    #             proc = subp.Popen([prog_exe, '--version'], stdout=subp.PIPE)
-    #             out = proc.communicate()[0].split()[-1]
-    #             return out
-    #
-    # An then do:
-    #
-    #     env['GET_PROG_VERSION'] = get_prog_version
-    #     env['AD_VERSION']       = "${GET_PROG_VERSION('AD_ASCIIDOC')}"
-    #     env['A2X_VERSION']      = "${GET_PROG_VERSION('A2X_A2X')}"
-    #
-    # In order to let AD_ASCIIDOC/A2X_A2X be defined by the calling SConstruct
-    # file (to implement a sort of lazy evaluation of the version variables).
-    # But it seems as if that is not supported by SCons.
-
+    # try to find the asciidoc and a2x executables
     ad_asciidoc = _get_prog_path(env, 'AD_ASCIIDOC', 'asciidoc')
     a2x_a2x     = _get_prog_path(env, 'A2X_A2X', 'a2x')
 
+    # get the asciidoc version
     try:
         ad_proc = subp.Popen([ad_asciidoc, '--version'], stdout=subp.PIPE)
         ad_ver  = ad_proc.communicate()[0].split()[-1]
