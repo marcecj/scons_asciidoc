@@ -197,7 +197,6 @@ def a2x_builder(env, target, source, *args, **kwargs):
 
     a2x_doctype = env['A2X_DOCTYPE']
     a2x_format  = env['A2X_FORMAT']
-    a2x_flags   = env.Split(env['A2X_FLAGS'])
     keep_temp   = env['A2X_KEEPARTIFACTS']
 
     if a2x_format not in a2x_valid_formats:
