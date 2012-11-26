@@ -1,7 +1,9 @@
-# An SCons Tool for AsciiDoc
+An SCons Tool for AsciiDoc
+==========================
 Marc Joliet <marcec@gmx.de>
 
-## Introduction
+Introduction
+------------
 
 This is an SCons tool for compiling AsciiDoc documents to various formats using
 the `asciidoc` and `a2x` programs.  It adds two appropriate builders, `AsciiDoc`
@@ -11,7 +13,8 @@ using various construction variables (see "Usage" below).
 Please keep in mind that this SCons tool is still under (heavy) development and
 lacks a test suite.  Still, it already takes care of a lot of things.
 
-## Installation
+Installation
+------------
 
 The SCons AsciiDoc tool depends on the obvious:
 
@@ -28,18 +31,23 @@ Alternatively, you could clone the repository into
 `$HOME/.scons/site_scons/site_tools`, again, into a subdirectory named
 `asciidoc`.
 
-## Usage
+Usage
+-----
 
 Use this as you would any other SCons tool: add it to the `tools` argument of
 Environment(), for example:
 
-    env = Environment(tools = ['default', 'asciidoc'])
+--------------------------------------------------
+env = Environment(tools = ['default', 'asciidoc'])
+--------------------------------------------------
 
 To compile an AsciiDoc source file, you can use either the `AsciiDoc()` or the
 `A2X()` builder:
 
-    docs = env.AsciiDoc(['readme.txt'])
-    pdf  = env.A2X(['readme.txt'])
+-----------------------------------
+docs = env.AsciiDoc(['readme.txt'])
+pdf  = env.A2X(['readme.txt'])
+-----------------------------------
 
 Note that due to a limitation of the `a2x` program (you cannot specify the
 output file name), specifying the target of the `A2X` builder only changes the
@@ -49,20 +57,24 @@ builder and variant directories should work.
 To manipulate the behaviour of the builders, you can specify the following
 construction variables (variables for internal use are not listed here):
 
-- `AD_ASCIIDOC`  -> the name of the `asciidoc` executable
-- `AD_FLAGS`     -> miscellaneous flags passed to `asciidoc`
-- `AD_BACKEND`   -> the backend passed via the `-b` option
-- `AD_DOCTYPE`   -> the document type passed via the `-d` option
-- `AD_CONFFILES` -> a list of configuration files passed via the `-f` option
-- `AD_ATTRIBUTES` -> a list of attributes passed via the `-a` option
-- `A2X_A2X`      -> the name of the `a2x` executable
-- `A2X_FLAGS`    -> miscellaneous flags passed to `a2x`
-- `A2X_FORMAT`   -> the format passed via the `-f` option
-- `A2X_DOCTYPE`  -> the document type passed via the `-d` option
-- `A2X_CONFFILE` -> a configuration file passed via the `--conf-file` option
-- `A2X_ATTRIBUTES` -> a list of attributes passed via the `-a` option
-- `A2X_RESOURCES` -> a list of resource files passed via the `-r` option
-- `A2X_RESOURCEMANIFEST` -> a resource manifest file passed via the `-m` option
+[options="autowidth,header"]
+|===============================================================
+|Variable name          | Function
+|`AD_ASCIIDOC`          | The name of the `asciidoc` executable.
+|`AD_FLAGS`             | Miscellaneous flags passed to `asciidoc`.
+|`AD_BACKEND`           | The backend passed via the `-b` option.
+|`AD_DOCTYPE`           | The document type passed via the `-d` option.
+|`AD_CONFFILES`         | A list of configuration files passed via the `-f` option.
+|`AD_ATTRIBUTES`        | A list of attributes passed via the `-a` option.
+|`A2X_A2X`              | The name of the `a2x` executable.
+|`A2X_FLAGS`            | Miscellaneous flags passed to `a2x`.
+|`A2X_FORMAT`           | The format passed via the `-f` option.
+|`A2X_DOCTYPE`          | The document type passed via the `-d` option.
+|`A2X_CONFFILE`         | A configuration file passed via the `--conf-file` option.
+|`A2X_ATTRIBUTES`       | A list of attributes passed via the `-a` option.
+|`A2X_RESOURCES`        | A list of resource files passed via the `-r` option.
+|`A2X_RESOURCEMANIFEST` | A resource manifest file passed via the `-m` option.
+|===============================================================
 
 Finally, there is also a variable `A2X_KEEPARTIFACTS`, which defines whether
 build artifacts should be deleted by `a2x` or not.  This variable sets the `a2x`
@@ -80,10 +92,12 @@ To override these variables for individual source files, SCons lets you pass
 construction variables as keyword arguments to builders.  For example, to build
 one document as a website and another as a manpage, you can do the following:
 
-    web = env.AsciiDoc(['website.txt'], AD_BACKEND='html5')
-    # man.path is 'prog.1'
-    man = env.A2X(['prog.1.txt'],
-                  A2X_BACKEND='manpage', A2X_DOCTYPE='manpage')
+-----------------------------------------------------------
+web = env.AsciiDoc(['website.txt'], AD_BACKEND='html5')
+# man.path is 'prog.1'
+man = env.A2X(['prog.1.txt'],
+              A2X_BACKEND='manpage', A2X_DOCTYPE='manpage')
+-----------------------------------------------------------
 
 As can be seen here, in the case of the manpage backend, the document should
 have the category as part of its name, as the target file name is identical to
@@ -95,20 +109,24 @@ Furthermore, the tool adds the construction variables `AD_VERSION` and
 locations (as might be the case under Windows), you can set the `AD_ASCIIDOC`
 and `A2X_A2X` construction variables at environment initialisation time, e.g.:
 
-    env = Environment(AD_ASCIIDOC='/path/to/asciidoc',
-                      tools = ['default', 'asciidoc'])
+----------------------------------------------------
+env = Environment(AD_ASCIIDOC='/path/to/asciidoc',
+                  tools = ['default', 'asciidoc'])
+----------------------------------------------------
 
 This is especially handy in combination with the SCons `ARGUMENTS` dictionary.
 A generic way to handle this might be to do something like following:
 
-    extra_kwargs = {}
-    for k, v in ARGUMENTS.iteritems():
-        if k == 'AD_ASCIIDOC' and v:
-            extra_kwargs[k] = v
-        elif k == 'A2X_A2X' and v:
-            extra_kwargs[k] = v
+------------------------------------------------------------------
+extra_kwargs = {}
+for k, v in ARGUMENTS.iteritems():
+    if k == 'AD_ASCIIDOC' and v:
+        extra_kwargs[k] = v
+    elif k == 'A2X_A2X' and v:
+        extra_kwargs[k] = v
 
-    env = Environment(tools = ['default', 'asciidoc'], **extra_kwargs)
+env = Environment(tools = ['default', 'asciidoc'], **extra_kwargs)
+------------------------------------------------------------------
 
 One more important thing to keep in mind: when asciidoc or a2x are not
 installed, the tool does *not* raise an error.  Instead, it sets the
@@ -120,12 +138,14 @@ work around that.  A user trying to compile and install a piece of software
 should not be hindered by the fact that he does not have documentation tools
 installed (which can be hard or impossible on non-Unix systems.)
 
-## Related Software
+Related Software
+----------------
 
 You could combine the `AsciiDoc()` builder with the
-[SCons DocBook tool](https://bitbucket.org/dirkbaechle/scons_docbook) by Dirk
+https://bitbucket.org/dirkbaechle/scons_docbook[SCons DocBook tool] by Dirk
 Bächle as an alternative to using the `A2X` builder.
 
-## License
+License
+-------
 
 See the file LICENSE.
