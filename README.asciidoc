@@ -120,9 +120,9 @@ A generic way to handle this might be to do something like following:
 ------------------------------------------------------------------
 extra_kwargs = {}
 for k, v in ARGUMENTS.iteritems():
-    if k == 'AD_ASCIIDOC' and v:
+    if k == 'AD_ASCIIDOC':
         extra_kwargs[k] = v
-    elif k == 'A2X_A2X' and v:
+    elif k == 'A2X_A2X':
         extra_kwargs[k] = v
 
 env = Environment(tools = ['default', 'asciidoc'], **extra_kwargs)
