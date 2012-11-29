@@ -28,20 +28,17 @@ def ad_src_scanner_func(node, env, path):
     return env.File([os.sep.join([node_path, e])
                      for e in txt_files + img_files])
 
-def ad_scan_check(node, env):
-    """Check whether a node should be scanned."""
+def ad_scan_recursive(nodes):
+    """Filter the list of nodes that are to be scanned."""
 
     # only scan asciidoc source files (put another way, *do not* scan things
     # like image files)
-    if node.path.endswith('.txt'):
-        return True
-    return False
+    return [n for n in nodes if n.path.endswith('.txt')]
 
 ad_src_scanner = SCons.Scanner.Scanner(
     ad_src_scanner_func,
     name = "asciidoc_scanner",
-    scan_check = ad_scan_check,
-    recursive = True
+    recursive = ad_scan_recursive,
 )
 
 ########################
