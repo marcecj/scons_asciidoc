@@ -11,6 +11,8 @@ import re
 # stuff common to both builders #
 #################################
 
+txt_reg = re.compile('include1{0,1}:{1,2}(.+?)\[')
+img_reg = re.compile('image:{1,2}(.+?)\[')
 def ad_src_scanner_func(node, env, path):
     """Scans AsciiDoc files for implicit dependencies."""
 
@@ -20,10 +22,7 @@ def ad_src_scanner_func(node, env, path):
     node_contents = node.get_contents()
     node_path = os.path.dirname(node.path)
 
-    txt_reg = re.compile('include1{0,1}:{1,2}(.+?)\[')
     txt_files = txt_reg.findall(node_contents)
-
-    img_reg = re.compile('image:{1,2}(.+?)\[')
     img_files = img_reg.findall(node_contents)
 
     return env.File([os.sep.join([node_path, e])
