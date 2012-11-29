@@ -47,11 +47,8 @@ valid_doctypes = frozenset((
 # functions that add extra dependencies #
 #########################################
 
-def ad_add_extra_deps(env, target, source):
+def ad_add_extra_deps(env, target, source, backend, doctype, conffiles):
     """Add extra dependencies to an asciidoc target."""
-
-    backend = env['AD_BACKEND']
-    doctype = env['AD_DOCTYPE']
 
     src = str(source[0])
     s = SCons.Util.splitext(os.path.basename(src))[0]
@@ -66,7 +63,7 @@ def ad_add_extra_deps(env, target, source):
     )
 
     conf_files = [os.sep.join([d, c]) for c in conf_files]
-    conf_files.extend(env['AD_CONFFILES'])
+    conf_files.extend(conffiles)
 
     for c in conf_files:
         if os.path.isfile(c):
@@ -106,12 +103,10 @@ def get_res_entry(line, dir):
 
     return res_list
 
-def a2x_add_extra_deps(env, target, source):
+def a2x_add_extra_deps(env, target, source, doctype, *args):
     """Add extra dependencies to an a2x target."""
 
-    doctype   = env['A2X_DOCTYPE']
-    resman    = env['A2X_RESOURCEMANIFEST']
-    a2x_flags = env.Split(env['A2X_FLAGS'])
+    conffile, resources, resman, flags = args
 
     src = str(source[0])
     s = SCons.Util.splitext(os.path.basename(src))[0]
@@ -128,7 +123,7 @@ def a2x_add_extra_deps(env, target, source):
     )
 
     conf_files = [os.sep.join([d, c]) for c in conf_files]
-    conf_files.append(env['A2X_CONFFILE'])
+    conf_files.append(conffile)
 
     for c in conf_files:
         if os.path.isfile(c):
@@ -149,13 +144,13 @@ def a2x_add_extra_deps(env, target, source):
 
     # for each resource specified, search for directories and files, and add
     # them to the dependency list
-    for res in env['A2X_RESOURCES']:
+    for res in resources:
         resource = get_res_entry(res, d)
         if resource:
             env.Depends(target, resource)
 
     # look for files passed in A2X_FLAGS and add them to the dependency list
-    for flag in a2x_flags:
+    for flag in env.Split(flags):
 
         # handle case "--option=[sub-option=]file"
         flag = flag.split('=')
@@ -173,13 +168,10 @@ def a2x_add_extra_deps(env, target, source):
 def asciidoc_builder(env, target, source, *args, **kwargs):
     """An asciidoc pseudo-builder."""
 
-    # handle overriding construction variables by cloning the environment and
-    # passing the unpacked keyword arguments; this is needed because this is a
-    # pseudo-builder
-    env = env.Clone(**kwargs)
-
-    ad_backend = env['AD_BACKEND']
-    ad_doctype = env['AD_DOCTYPE']
+    # get overridden construction variables outside of the builder
+    ad_backend   = kwargs.get('AD_BACKEND', env['AD_BACKEND'])
+    ad_doctype   = kwargs.get('AD_DOCTYPE', env['AD_DOCTYPE'])
+    ad_conffiles = kwargs.get('AD_CONFFILES', env['AD_CONFFILES'])
 
     if ad_backend not in ad_valid_backends:
         raise ValueError("Invalid AsciiDoc backend '%s'." % ad_backend)
@@ -196,21 +188,24 @@ def asciidoc_builder(env, target, source, *args, **kwargs):
 
     # add extra dependencies, like conf files
     for t, s in izip(r, source):
-        ad_add_extra_deps(env, t, [s])
+        ad_add_extra_deps(env, t, [s], ad_backend, ad_doctype, ad_conffiles)
 
     return r
 
 def a2x_builder(env, target, source, *args, **kwargs):
     """An a2x pseudo-builder."""
 
-    # handle overriding construction variables by cloning the environment and
-    # passing the unpacked keyword arguments; this is needed because this is a
-    # pseudo-builder
-    env = env.Clone(**kwargs)
+    # get overridden construction variables outside of the builder
+    a2x_doctype = kwargs.get('A2X_DOCTYPE', env['A2X_DOCTYPE'])
+    a2x_format  = kwargs.get('A2X_FORMAT', env['A2X_FORMAT'])
+    keep_temp   = kwargs.get('A2X_KEEPARTIFACTS', env['A2X_KEEPARTIFACTS'])
 
-    a2x_doctype = env['A2X_DOCTYPE']
-    a2x_format  = env['A2X_FORMAT']
-    keep_temp   = env['A2X_KEEPARTIFACTS']
+    # get overridden construction variables used by a2x_add_extra_deps
+    dep_vars = ('A2X_CONFFILE',
+                'A2X_RESOURCES',
+                'A2X_RESOURCEMANIFEST',
+                'A2X_FLAGS')
+    dep_var_vals = [kwargs.get(d, env[d]) for d in dep_vars]
 
     if a2x_format not in a2x_valid_formats:
         raise ValueError("Invalid A2X format '%s'." % a2x_format)
@@ -234,7 +229,7 @@ def a2x_builder(env, target, source, *args, **kwargs):
             break
 
         # add extra dependencies, like conf files
-        a2x_add_extra_deps(env, t, [s])
+        a2x_add_extra_deps(env, t, [s], a2x_doctype, *dep_var_vals)
 
         fbasename = SCons.Util.splitext(t.path)[0]
         fpath     = os.path.dirname(str(t))
