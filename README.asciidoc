@@ -136,7 +136,8 @@ even if its documentation is not.  Put another way, it should not be a "hard"
 error when the documentation cannot be built; the build system should be able to
 work around that.  A user trying to compile and install a piece of software
 should not be hindered by the fact that he does not have documentation tools
-installed (which can be hard or impossible on non-Unix systems.)
+installed (which can be hard or impossible on non-Unix systems).  Note that you
+can call the tools `exists()` function to check if the tool is available.
 
 Related Software
 ----------------
