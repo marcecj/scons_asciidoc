@@ -18,6 +18,7 @@ def ad_src_scanner_func(node, env, path):
         return []
 
     node_contents = node.get_contents()
+    node_path = os.path.dirname(node.path)
 
     txt_reg = re.compile('include1{0,1}:{1,2}(.+?)\[')
     txt_files = txt_reg.findall(node_contents)
@@ -25,7 +26,8 @@ def ad_src_scanner_func(node, env, path):
     img_reg = re.compile('image:{1,2}(.+?)\[')
     img_files = img_reg.findall(node_contents)
 
-    return txt_files + img_files
+    return env.File([os.sep.join([node_path, e])
+                     for e in txt_files + img_files])
 
 def ad_scan_check(node, env):
     """Check whether a node should be scanned."""
