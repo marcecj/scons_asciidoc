@@ -57,13 +57,6 @@ ad_backend_suffix_map = {
     "latex":       ".tex",
 }
 
-def gen_ad_suffix(env, sources):
-    """Generate the AsciiDoc target suffix depending on the chosen backend."""
-
-    ad_backend = env['AD_BACKEND']
-
-    return ad_backend_suffix_map[ad_backend]
-
 ad_action = "${AD_ASCIIDOC} \
 -b ${AD_BACKEND} \
 -d ${AD_DOCTYPE} \
@@ -75,7 +68,7 @@ ${AD_FLAGS} \
 asciidoc_bld = SCons.Builder.Builder(
     action = ad_action,
     src_suffix = '.txt',
-    suffix = gen_ad_suffix,
+    suffix = lambda env,srcs: ad_backend_suffix_map[env['AD_BACKEND']],
     single_source = True,
     source_scanner = ad_src_scanner,
 )
@@ -101,13 +94,6 @@ a2x_backend_suffix_map = {
     "xhtml":      ".html",
 }
 
-def gen_a2x_suffix(env, sources):
-    """Generate the a2x target suffix depending on the chosen format."""
-
-    a2x_format = env['A2X_FORMAT']
-
-    return a2x_backend_suffix_map[a2x_format]
-
 a2x_action = "${A2X_A2X} \
 -f ${A2X_FORMAT} \
 -d ${A2X_DOCTYPE} \
@@ -123,7 +109,7 @@ ${SOURCE}"
 a2x_bld = SCons.Builder.Builder(
     action = a2x_action,
     src_suffix = '.txt',
-    suffix = gen_a2x_suffix,
+    suffix = lambda env,srcs: a2x_backend_suffix_map[env['A2X_FORMAT']],
     single_source = True,
     source_scanner = ad_src_scanner,
     target_factory = SCons.Script.Entry,
