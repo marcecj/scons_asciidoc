@@ -11,8 +11,8 @@ import re
 # stuff common to both builders #
 #################################
 
-txt_reg = re.compile('include1{0,1}:{1,2}(.+?)\[')
-img_reg = re.compile('image:{1,2}(.+?)\[')
+txt_reg = re.compile('include1{0,1}:{1,2}(\S+?)\[')
+img_reg = re.compile('image:{1,2}(\S+?)\[')
 def ad_src_scanner_func(node, env, path):
     """Scans AsciiDoc files for implicit dependencies."""
 
